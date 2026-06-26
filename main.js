@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const alertPriceValue = document.getElementById('alert-price-value');
   const alertPriceUnit = document.getElementById('alert-price-unit');
   const alertSaveBtn = document.getElementById('alert-settings-save');
+  const favoritesRefreshBtn = document.getElementById('favorites-refresh');
 
   const FAVORITES_KEY = 'favorite_stocks_v1';
   const US_EXCHANGES = new Set(['NMS', 'NYQ', 'ASE', 'NGM', 'NCM', 'PCX', 'BTS']);
@@ -864,6 +865,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (favoritesRefreshBtn) {
+    favoritesRefreshBtn.addEventListener('click', async () => {
+      if (favoritesRefreshBtn.classList.contains('spinning')) return;
+
+      favoritesRefreshBtn.classList.add('spinning');
+      try {
+        await refreshFavoriteAlerts();
+      } catch (e) {
+        console.error('Manual alerts refresh failed:', e);
+      } finally {
+        // 시각적 피드백 효과를 위해 최소 600ms 회전 애니메이션 유지
+        setTimeout(() => {
+          favoritesRefreshBtn.classList.remove('spinning');
+        }, 600);
+      }
+    });
+  }
+
   if (favoritePanelToggle) {
     favoritePanelToggle.addEventListener('click', () => setFavoritePanelOpen(!favoritePanelOpen));
   }
@@ -877,7 +896,10 @@ document.addEventListener('DOMContentLoaded', () => {
   syncFavoriteButton();
   renderFavoritePanel();
   refreshFavoriteAlerts();
-  loadExchangeRates();
+  
+  // 환율 표기 숨김 및 호출 차단 (코드 미삭제, 주석 처리)
+  // loadExchangeRates();
+  
   setInterval(refreshFavoriteAlerts, 5 * 60 * 1000);
-  setInterval(loadExchangeRates, 30 * 60 * 1000);
+  // setInterval(loadExchangeRates, 30 * 60 * 1000);
 });

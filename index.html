@@ -20,16 +20,13 @@
     <main class="card">
       <div class="card-border-gradient"></div>
       <div class="card-content">
-        <div class="badge">
-          <span class="badge-dot"></span>
-          Live
-        </div>
-
-        <h1 class="title">
-          Live <span class="gradient-text">Search</span>
-        </h1>
-
         <div class="top-actions">
+          <button id="favorites-refresh" class="favorites-refresh" type="button" aria-label="즐겨찾기 새로고침">
+            <svg class="favorites-refresh-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 4v6h-6"></path>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+          </button>
           <button id="favorites-panel-toggle" class="favorites-panel-toggle" type="button" aria-label="즐겨찾기 목록 열기" aria-expanded="false">
             <span class="favorites-panel-toggle-dots">
               <span class="favorites-panel-toggle-dot favorites-panel-toggle-dot--up" id="favorites-panel-alert-dot-up"></span>
@@ -39,7 +36,7 @@
           </button>
         </div>
 
-        <div class="exchange-box" id="exchange-box">
+        <div class="exchange-box" id="exchange-box" style="display: none;">
           <div class="exchange-row">
             <div class="exchange-item" id="usd-item">
               <div class="exchange-info">

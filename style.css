@@ -28,6 +28,10 @@
   padding: 0;
 }
 
+html, body {
+  overscroll-behavior: none; /* 모바일 브라우저 오버스크롤 바운스 차단 */
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-dark);
@@ -36,7 +40,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: visible;
+  overflow-x: hidden; /* 가로 스크롤 방지 */
+  overflow-y: auto;
+  -webkit-tap-highlight-color: transparent; /* 터치 시 파란 박스 방지 */
 }
 
 #app {
@@ -115,9 +121,12 @@ body {
   overflow: hidden;
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(185, 95, 248, 0.1);
+/* PC 호버 상태에서만 카드 상단 리프트업 적용 (터치 덜컹거림 방지) */
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(185, 95, 248, 0.1);
+  }
 }
 
 /* Glass Inner Border Effect */
@@ -312,7 +321,45 @@ body {
 .top-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
   margin: 10px 0 14px;
+}
+
+.favorites-refresh {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid hsla(230, 25%, 30%, 0.45);
+  background: hsla(230, 25%, 8%, 0.55);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.favorites-refresh:hover {
+  transform: translateY(-1px);
+  border-color: hsla(230, 25%, 45%, 0.65);
+  color: var(--text-primary);
+}
+
+.favorites-refresh-svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* 새로고침 회전 애니메이션 */
+.favorites-refresh.spinning .favorites-refresh-svg {
+  animation: spin-refresh 0.8s linear infinite;
+}
+
+@keyframes spin-refresh {
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .favorites-panel-toggle {
@@ -1164,4 +1211,30 @@ body {
 .alert-save-btn:hover {
   transform: translateY(-1px);
   opacity: 0.9;
+}
+
+/* Mobile View Optimization */
+@media (max-width: 480px) {
+  #app {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 32px 20px;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .exchange-box {
+    padding: 12px 14px;
+    margin-bottom: 24px;
+  }
+
+  .exchange-separator {
+    height: 36px;
+    margin: 0 12px;
+  }
 }

@@ -261,6 +261,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
+      // 터치 스크린용 드래그 앤 드롭 정렬 로직 (모바일 대응)
+      let touchStartY = 0;
+      let isTouchDragging = false;
+
+      row.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        touchStartY = touch.clientY;
+        isTouchDragging = false;
+        row.classList.add('dragging-pending');
+      }, { passive: true });
+
+      row.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        const deltaY = Math.abs(touch.clientY - touchStartY);
+
+        // 터치 시작 후 손가락이 6px 이상 상하로 이동하면 드래그 상태로 판정
+        if (deltaY > 6) {
+          isTouchDragging = true;
+          row.classList.remove('dragging-pending');
+          row.classList.add('dragging');
+        }
+
+        if (isTouchDragging) {
+          // 브라우저의 기본 페이지 스크롤 동작을 무력화하여 오버스크롤/흔들림 방지
+          if (e.cancelable) e.preventDefault();
+
+          // 현재 손가락이 터치 중인 화면 좌표 밑의 DOM 엘리먼트 탐색
+          const element = document.elementFromPoint(touch.clientX, touch.clientY);
+          if (!element) return;
+
+          const hoverItem = element.closest('.favorite-item');
+          if (hoverItem && hoverItem !== row) {
+            const bounding = hoverItem.getBoundingClientRect();
+            const offset = touch.clientY - bounding.top - bounding.height / 2;
+            if (offset < 0) {
+              favoriteList.insertBefore(row, hoverItem);
+            } else {
+              favoriteList.insertBefore(row, hoverItem.nextSibling);
+            }
+          }
+        }
+      }, { passive: false });
+
+      row.addEventListener('touchend', (e) => {
+        row.classList.remove('dragging-pending');
+        
+        if (isTouchDragging) {
+          // 드래그 정렬이 완료되면 스타일 원복 및 변경된 정렬 기준 localStorage 저장
+          row.classList.remove('dragging');
+          isTouchDragging = false;
+
+          const currentItems = Array.from(favoriteList.querySelectorAll('.favorite-item'));
+          const newFavoriteStocks = [];
+          currentItems.forEach((itemEl) => {
+            const origIdx = parseInt(itemEl.dataset.originalIndex, 10);
+            newFavoriteStocks.push(favoriteStocks[origIdx]);
+          });
+          favoriteStocks = newFavoriteStocks;
+          saveFavoriteStocks();
+          renderFavoritePanel();
+
+          // 드래그가 끝난 시점에 뒤따르는 click(종목 상세 열림) 이벤트가 가동되는 것을 전적으로 방지
+          e.preventDefault();
+        }
+      });
+
       const main = document.createElement('div');
       main.className = 'favorite-item-main';
 

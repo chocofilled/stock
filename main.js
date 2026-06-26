@@ -723,15 +723,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!Array.isArray(data) || data.length === 0) throw new Error('No price data');
 
     const points = data.map((item) => {
-      const yyyymmdd = String(item.localDateTime || '');
-      let date = new Date();
-      if (yyyymmdd.length === 8) {
-        date = new Date(
-          parseInt(yyyymmdd.substring(0, 4), 10),
-          parseInt(yyyymmdd.substring(4, 6), 10) - 1,
-          parseInt(yyyymmdd.substring(6, 8), 10)
-        );
-      }
+      // 네이버 API의 날짜 속성인 localTradedAt(예: "2026-06-26")을 직접 파싱
+      const date = item.localTradedAt ? new Date(item.localTradedAt) : new Date();
       return {
         price: Number(String(item.closePrice).replace(/,/g, '').trim()),
         date: date
@@ -882,31 +875,11 @@ document.addEventListener('DOMContentLoaded', () => {
     changeRatioEl.textContent = '';
     infoPanel.classList.remove('hidden');
 
+    // 1. 필수 가격 정보 조회 (CORS 우회 로컬 프록시 / Vercel 연동)
     try {
-      let priceInfoPromise;
-      let chartDataPromise;
-
+      let priceInfo;
       if (stock.country === 'JP' || stock.country === 'US') {
-        priceInfoPromise = fetchYahooPrice(stock);
-        chartDataPromise = fetchYahooChartData(stock);
-      } else {
-        priceInfoPromise = (async () => {
-          const res = await fetch(`/api/stock/${stock.code}/price?pageSize=1&page=1`);
-          if (!res.ok) throw new Error('Naver API failed');
-          const data = await res.json();
-          if (!Array.isArray(data) || data.length === 0) throw new Error('No price data');
-          return data[0];
-        })();
-        chartDataPromise = fetchNaverChartData(stock);
-      }
-
-      // 두 데이터를 병렬 처리하여 대기 시간 감축
-      const [priceInfo, chartPoints] = await Promise.all([
-        priceInfoPromise,
-        chartDataPromise
-      ]);
-
-      if (stock.country === 'JP' || stock.country === 'US') {
+        priceInfo = await fetchYahooPrice(stock);
         const locale = stock.country === 'JP' ? 'ja-JP' : 'en-US';
         const fractionDigits = stock.country === 'JP' ? 0 : 2;
         priceEl.textContent = `${priceInfo.price.toLocaleString(locale, {
@@ -915,30 +888,48 @@ document.addEventListener('DOMContentLoaded', () => {
         })} ${priceInfo.currency}`;
         setPriceChange(priceChangeEl, changeIndicatorEl, changeValEl, changeRatioEl, priceInfo.change, priceInfo.ratio, fractionDigits);
       } else {
+        const res = await fetch(`/api/stock/${stock.code}/price?pageSize=1&page=1`);
+        if (!res.ok) throw new Error('Naver API failed');
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) throw new Error('No price data');
+        priceInfo = data[0];
+
         const rawPrice = priceInfo.closePrice;
         const rawChange = Number(String(priceInfo.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
         const rawRatio = parseFloat(priceInfo.fluctuationsRatio) || 0;
         priceEl.textContent = `${rawPrice} KRW`;
         setPriceChange(priceChangeEl, changeIndicatorEl, changeValEl, changeRatioEl, rawChange, rawRatio, 0);
       }
+    } catch (error) {
+      console.error('Stock price fetch error:', error);
+      priceEl.textContent = '조회 실패';
+      priceChangeEl.className = 'stock-price-change flat';
+      changeIndicatorEl.textContent = '-';
+      changeValEl.textContent = '';
+      changeRatioEl.textContent = '';
+      return; // 필수 데이터 조회 실패 시 차트 로딩을 건너뛰고 조기 종료
+    }
 
-      // 최근 15영업일 데이터로 차트 렌더링
+    // 2. 부가 정보인 미니 주가 차트 렌더링 (실패하더라도 전체 조회는 차단되지 않도록 별도 예외 격리)
+    try {
+      let chartPoints = [];
+      if (stock.country === 'JP' || stock.country === 'US') {
+        chartPoints = await fetchYahooChartData(stock);
+      } else {
+        chartPoints = await fetchNaverChartData(stock);
+      }
+
       if (chartPoints && chartPoints.length > 1) {
         const formatMD = (d) => `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
         const startMD = formatMD(chartPoints[0].date);
         const endMD = formatMD(chartPoints[chartPoints.length - 1].date);
         chartPeriodVal.textContent = `${startMD} ~ ${endMD}`;
 
-        drawSparkline(chartPoints);
         chartContainer.classList.remove('hidden');
+        drawSparkline(chartPoints);
       }
-    } catch (error) {
-      console.error('Stock price & chart fetch error:', error);
-      priceEl.textContent = '조회 실패';
-      priceChangeEl.className = 'stock-price-change flat';
-      changeIndicatorEl.textContent = '-';
-      changeValEl.textContent = '';
-      changeRatioEl.textContent = '';
+    } catch (chartError) {
+      console.warn('Mini chart load failed (ignoring error to preserve price details):', chartError);
     }
   }
 

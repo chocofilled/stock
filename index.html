@@ -124,6 +124,15 @@
             </div>
           </div>
 
+          <!-- 미니 주가 차트 컨테이너 -->
+          <div id="stock-chart-container" class="stock-chart-container hidden">
+            <div class="chart-header">
+              <span class="chart-title">최근 15영업일 추이</span>
+              <span id="chart-period-val" class="chart-period-val">-</span>
+            </div>
+            <canvas id="stock-sparkline-canvas" width="400" height="110"></canvas>
+          </div>
+
           <div class="stock-panel-footer">
             <button id="stock-panel-close" class="stock-panel-close" type="button" aria-label="종목 닫기">닫기</button>
           </div>

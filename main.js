@@ -31,6 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const alertSaveBtn = document.getElementById('alert-settings-save');
   const favoritesRefreshBtn = document.getElementById('favorites-refresh');
 
+  const chartContainer = document.getElementById('stock-chart-container');
+  const chartPeriodVal = document.getElementById('chart-period-val');
+  const sparklineCanvas = document.getElementById('stock-sparkline-canvas');
+
   const FAVORITES_KEY = 'favorite_stocks_v1';
   const US_EXCHANGES = new Set(['NMS', 'NYQ', 'ASE', 'NGM', 'NCM', 'PCX', 'BTS']);
 
@@ -92,6 +96,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function loadStockList() {
     searchLoader.classList.add('active');
+    
+    const STOCKS_CACHE_KEY = 'krx_stocks_cache_v1';
+    const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24시간
+    
+    // 1. 로컬 캐시 조회
+    let cachedData = null;
+    try {
+      const cached = localStorage.getItem(STOCKS_CACHE_KEY);
+      if (cached) {
+        cachedData = JSON.parse(cached);
+      }
+    } catch (e) {
+      console.warn('Failed to parse cached stock list:', e);
+    }
+
+    const now = Date.now();
+    
+    // 캐시가 유효하면 (24시간 경과 미만) 즉시 캐시에서 데이터 복원
+    if (cachedData && cachedData.timestamp && (now - cachedData.timestamp < CACHE_EXPIRY) && Array.isArray(cachedData.stocks)) {
+      stocks = cachedData.stocks;
+      searchInput.disabled = false;
+      searchInput.placeholder = '';
+      console.log(`Loaded ${stocks.length} KRX stocks from LocalStorage Cache.`);
+      searchLoader.classList.remove('active');
+      return;
+    }
+
+    // 2. 캐시가 없거나 만료된 경우에만 네트워크에서 새 데이터 가져오기
     let currentDate = new Date();
     let csvData = null;
 
@@ -113,7 +145,23 @@ document.addEventListener('DOMContentLoaded', () => {
       stocks = parseCSV(csvData);
       searchInput.disabled = false;
       searchInput.placeholder = '';
-      console.log(`Loaded ${stocks.length} KRX stocks.`);
+      console.log(`Loaded ${stocks.length} KRX stocks from Network.`);
+      
+      // 로컬 스토리지 캐시 업데이트
+      try {
+        localStorage.setItem(STOCKS_CACHE_KEY, JSON.stringify({
+          timestamp: now,
+          stocks: stocks
+        }));
+      } catch (e) {
+        console.warn('Failed to write stock list to cache:', e);
+      }
+    } else if (cachedData && Array.isArray(cachedData.stocks)) {
+      // 네트워크 에러 발생 시 오래되었더라도 기존 캐시 데이터를 활용하여 작동성 유지 (폴백)
+      stocks = cachedData.stocks;
+      searchInput.disabled = false;
+      searchInput.placeholder = '';
+      console.log(`Network fetch failed. Restored ${stocks.length} KRX stocks from expired cache.`);
     } else {
       console.error('Failed to load stock list cache.');
       searchInput.placeholder = '';
@@ -644,6 +692,125 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  async function fetchYahooChartData(stock) {
+    const res = await fetch(`/api/yahoo/v8/finance/chart/${encodeURIComponent(stock.code)}?interval=1d&range=15d`);
+    if (!res.ok) throw new Error('Yahoo Chart fetch failed');
+
+    const data = await res.json();
+    const result = data.chart?.result?.[0];
+    if (!result) throw new Error('No chart result');
+
+    const closePrices = result.indicators?.quote?.[0]?.close || [];
+    const timestamps = result.timestamp || [];
+
+    const points = [];
+    for (let i = 0; i < closePrices.length; i++) {
+      if (closePrices[i] !== null && closePrices[i] !== undefined) {
+        points.push({
+          price: closePrices[i],
+          date: new Date(timestamps[i] * 1000)
+        });
+      }
+    }
+    return points;
+  }
+
+  async function fetchNaverChartData(stock) {
+    const response = await fetch(`/api/stock/${stock.code}/price?pageSize=15&page=1`);
+    if (!response.ok) throw new Error('Naver Chart fetch failed');
+
+    const data = await response.json();
+    if (!Array.isArray(data) || data.length === 0) throw new Error('No price data');
+
+    const points = data.map((item) => {
+      const yyyymmdd = String(item.localDateTime || '');
+      let date = new Date();
+      if (yyyymmdd.length === 8) {
+        date = new Date(
+          parseInt(yyyymmdd.substring(0, 4), 10),
+          parseInt(yyyymmdd.substring(4, 6), 10) - 1,
+          parseInt(yyyymmdd.substring(6, 8), 10)
+        );
+      }
+      return {
+        price: Number(String(item.closePrice).replace(/,/g, '').trim()),
+        date: date
+      };
+    }).reverse();
+
+    return points;
+  }
+
+  function drawSparkline(points) {
+    if (!sparklineCanvas) return;
+    const ctx = sparklineCanvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = sparklineCanvas.getBoundingClientRect();
+
+    sparklineCanvas.width = rect.width * dpr;
+    sparklineCanvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+
+    const width = rect.width;
+    const height = rect.height;
+    ctx.clearRect(0, 0, width, height);
+
+    const prices = points.map(p => p.price);
+    const minVal = Math.min(...prices);
+    const maxVal = Math.max(...prices);
+    const valRange = maxVal - minVal;
+
+    const padding = height * 0.15;
+    const chartHeight = height - padding * 2;
+
+    const getX = (index) => (index / (points.length - 1)) * width;
+    const getY = (val) => {
+      if (valRange === 0) return height / 2;
+      return height - padding - ((val - minVal) / valRange) * chartHeight;
+    };
+
+    const isUp = prices[prices.length - 1] >= prices[0];
+    const strokeColor = isUp ? 'hsl(185, 95%, 48%)' : 'hsl(270, 90%, 65%)';
+    const gradientStart = isUp ? 'hsla(185, 95%, 48%, 0.35)' : 'hsla(270, 90%, 65%, 0.35)';
+
+    // 배경 그라데이션
+    ctx.beginPath();
+    ctx.moveTo(getX(0), height);
+    for (let i = 0; i < points.length; i++) {
+      ctx.lineTo(getX(i), getY(prices[i]));
+    }
+    ctx.lineTo(getX(points.length - 1), height);
+    ctx.closePath();
+
+    const fillGrad = ctx.createLinearGradient(0, padding, 0, height);
+    fillGrad.addColorStop(0, gradientStart);
+    fillGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = fillGrad;
+    ctx.fill();
+
+    // 꺾은선 그리기 (글로우 효과)
+    ctx.beginPath();
+    ctx.moveTo(getX(0), getY(prices[0]));
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(getX(i), getY(prices[i]));
+    }
+
+    ctx.shadowColor = strokeColor;
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+  }
+
   async function fetchYahooPrice(stock) {
     const res = await fetch(`/api/yahoo/v8/finance/chart/${encodeURIComponent(stock.code)}?interval=1d&range=2d`);
     if (!res.ok) throw new Error('Yahoo Finance fetch failed');
@@ -674,6 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFavoritePanel();
 
     if (alertPanel) alertPanel.classList.add('hidden');
+    if (chartContainer) chartContainer.classList.add('hidden');
     
     if (alertToggle) {
       const isFav = isFavorite(stock);
@@ -715,8 +883,30 @@ document.addEventListener('DOMContentLoaded', () => {
     infoPanel.classList.remove('hidden');
 
     try {
+      let priceInfoPromise;
+      let chartDataPromise;
+
       if (stock.country === 'JP' || stock.country === 'US') {
-        const priceInfo = await fetchYahooPrice(stock);
+        priceInfoPromise = fetchYahooPrice(stock);
+        chartDataPromise = fetchYahooChartData(stock);
+      } else {
+        priceInfoPromise = (async () => {
+          const res = await fetch(`/api/stock/${stock.code}/price?pageSize=1&page=1`);
+          if (!res.ok) throw new Error('Naver API failed');
+          const data = await res.json();
+          if (!Array.isArray(data) || data.length === 0) throw new Error('No price data');
+          return data[0];
+        })();
+        chartDataPromise = fetchNaverChartData(stock);
+      }
+
+      // 두 데이터를 병렬 처리하여 대기 시간 감축
+      const [priceInfo, chartPoints] = await Promise.all([
+        priceInfoPromise,
+        chartDataPromise
+      ]);
+
+      if (stock.country === 'JP' || stock.country === 'US') {
         const locale = stock.country === 'JP' ? 'ja-JP' : 'en-US';
         const fractionDigits = stock.country === 'JP' ? 0 : 2;
         priceEl.textContent = `${priceInfo.price.toLocaleString(locale, {
@@ -724,24 +914,26 @@ document.addEventListener('DOMContentLoaded', () => {
           maximumFractionDigits: fractionDigits
         })} ${priceInfo.currency}`;
         setPriceChange(priceChangeEl, changeIndicatorEl, changeValEl, changeRatioEl, priceInfo.change, priceInfo.ratio, fractionDigits);
-        return;
+      } else {
+        const rawPrice = priceInfo.closePrice;
+        const rawChange = Number(String(priceInfo.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
+        const rawRatio = parseFloat(priceInfo.fluctuationsRatio) || 0;
+        priceEl.textContent = `${rawPrice} KRW`;
+        setPriceChange(priceChangeEl, changeIndicatorEl, changeValEl, changeRatioEl, rawChange, rawRatio, 0);
       }
 
-      const response = await fetch(`/api/stock/${stock.code}/price?pageSize=1&page=1`);
-      if (!response.ok) throw new Error('Naver API failed');
+      // 최근 15영업일 데이터로 차트 렌더링
+      if (chartPoints && chartPoints.length > 1) {
+        const formatMD = (d) => `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+        const startMD = formatMD(chartPoints[0].date);
+        const endMD = formatMD(chartPoints[chartPoints.length - 1].date);
+        chartPeriodVal.textContent = `${startMD} ~ ${endMD}`;
 
-      const data = await response.json();
-      if (!Array.isArray(data) || data.length === 0) throw new Error('No price data');
-
-      const priceInfo = data[0];
-      const rawPrice = priceInfo.closePrice;
-      const rawChange = Number(String(priceInfo.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
-      const rawRatio = parseFloat(priceInfo.fluctuationsRatio) || 0;
-
-      priceEl.textContent = `${rawPrice} KRW`;
-      setPriceChange(priceChangeEl, changeIndicatorEl, changeValEl, changeRatioEl, rawChange, rawRatio, 0);
+        drawSparkline(chartPoints);
+        chartContainer.classList.remove('hidden');
+      }
     } catch (error) {
-      console.error('Stock price fetch error:', error);
+      console.error('Stock price & chart fetch error:', error);
       priceEl.textContent = '조회 실패';
       priceChangeEl.className = 'stock-price-change flat';
       changeIndicatorEl.textContent = '-';

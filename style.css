@@ -754,6 +754,11 @@ body {
   color: white;
 }
 
+.market-badge.overtime {
+  background: hsl(28, 100%, 50%); /* Warm orange for after-hours */
+  color: white;
+}
+
 .stock-code {
   font-size: 11px;
   color: var(--text-muted);
@@ -896,15 +901,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 16px;
   border: 1px solid hsla(230, 25%, 20%, 0.35);
-  border-radius: 10px;
+  border-radius: 12px;
   background: hsla(230, 25%, 8%, 0.4);
-  padding: 10px 12px;
+  padding: 12px 14px;
   color: var(--text-primary);
   cursor: grab;
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
   text-align: left;
+  position: relative;
 }
 
 .favorite-item:active {
@@ -930,6 +936,7 @@ body {
 }
 
 .favorite-item-main {
+  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -937,7 +944,7 @@ body {
 }
 
 .favorite-item-name {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--text-primary);
   overflow: hidden;
@@ -963,19 +970,22 @@ body {
   align-items: flex-end;
   gap: 3px;
   flex-shrink: 0;
+  margin-right: 14px;
 }
 
 .favorite-item-price {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--text-primary);
   font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .favorite-item-ratio {
   font-size: 10px;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .favorite-item-ratio.up {
@@ -991,11 +1001,22 @@ body {
 }
 
 .favorite-item-alert {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) scale(0.6);
   flex-shrink: 0;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: transparent;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  opacity: 0;
+}
+
+.favorite-item-alert.visible {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
 }
 
 .favorite-item-alert.visible.up {

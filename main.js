@@ -476,24 +476,46 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshFavoriteAlerts();
   }
 
+  async function fetchKoreanRealtimePrice(stock) {
+    const response = await fetch(`/api/naver-realtime/api/realtime/domestic/stock/${stock.code}`);
+    if (!response.ok) throw new Error('Naver Realtime API failed');
+
+    const json = await response.json();
+    const data = json.datas?.[0];
+    if (!data) throw new Error('No realtime data');
+
+    // 시간외 단일가 데이터 존재 여부 및 시장 상태(OPEN) 확인
+    const isOvertime = data.overMarketPriceInfo && data.overMarketPriceInfo.overMarketStatus === 'OPEN';
+    
+    let price, change, ratio;
+    
+    if (isOvertime) {
+      const overInfo = data.overMarketPriceInfo;
+      price = Number(String(overInfo.overPrice).replace(/,/g, '').trim());
+      change = Number(String(overInfo.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
+      ratio = parseFloat(overInfo.fluctuationsRatio) || 0;
+    } else {
+      price = Number(String(data.closePrice).replace(/,/g, '').trim());
+      change = Number(String(data.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
+      ratio = parseFloat(data.fluctuationsRatio) || 0;
+    }
+
+    return {
+      price,
+      change,
+      ratio,
+      currency: 'KRW',
+      isOvertime,
+      marketStatus: data.marketStatus,
+      overMarketStatus: data.overMarketPriceInfo?.overMarketStatus
+    };
+  }
+
   async function fetchFavoritePriceInfo(stock) {
     if (stock.country === 'JP' || stock.country === 'US') {
       return fetchYahooPrice(stock);
     }
-
-    const response = await fetch(`/api/stock/${stock.code}/price?pageSize=1&page=1`);
-    if (!response.ok) throw new Error('Naver API failed');
-
-    const data = await response.json();
-    if (!Array.isArray(data) || data.length === 0) throw new Error('No price data');
-
-    const priceInfo = data[0];
-    return {
-      price: Number(String(priceInfo.closePrice).replace(/,/g, '').trim()),
-      change: Number(String(priceInfo.compareToPreviousClosePrice || '0').replace(/,/g, '').trim()),
-      ratio: parseFloat(priceInfo.fluctuationsRatio) || 0,
-      currency: 'KRW'
-    };
+    return fetchKoreanRealtimePrice(stock);
   }
 
   async function refreshFavoriteAlerts() {
@@ -888,17 +910,19 @@ document.addEventListener('DOMContentLoaded', () => {
         })} ${priceInfo.currency}`;
         setPriceChange(priceChangeEl, changeIndicatorEl, changeValEl, changeRatioEl, priceInfo.change, priceInfo.ratio, fractionDigits);
       } else {
-        const res = await fetch(`/api/stock/${stock.code}/price?pageSize=1&page=1`);
-        if (!res.ok) throw new Error('Naver API failed');
-        const data = await res.json();
-        if (!Array.isArray(data) || data.length === 0) throw new Error('No price data');
-        priceInfo = data[0];
-
-        const rawPrice = priceInfo.closePrice;
-        const rawChange = Number(String(priceInfo.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
-        const rawRatio = parseFloat(priceInfo.fluctuationsRatio) || 0;
+        priceInfo = await fetchKoreanRealtimePrice(stock);
+        const rawPrice = priceInfo.price.toLocaleString('ko-KR');
         priceEl.textContent = `${rawPrice} KRW`;
-        setPriceChange(priceChangeEl, changeIndicatorEl, changeValEl, changeRatioEl, rawChange, rawRatio, 0);
+        setPriceChange(priceChangeEl, changeIndicatorEl, changeValEl, changeRatioEl, priceInfo.change, priceInfo.ratio, 0);
+
+        // 뱃지 업데이트 (시간외 단일가 상태 표시)
+        if (priceInfo.isOvertime) {
+          badge.className = 'market-badge overtime';
+          badge.textContent = '시간외';
+        } else {
+          badge.className = 'market-badge hidden-label';
+          badge.textContent = '';
+        }
       }
     } catch (error) {
       console.error('Stock price fetch error:', error);

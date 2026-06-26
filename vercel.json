@@ -11,6 +11,10 @@
     {
       "source": "/api/yahoo/:path*",
       "destination": "https://query1.finance.yahoo.com/:path*"
+    },
+    {
+      "source": "/api/naver-realtime/:path*",
+      "destination": "https://polling.finance.naver.com/:path*"
     }
   ]
 }

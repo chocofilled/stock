@@ -1065,7 +1065,8 @@ document.addEventListener('DOMContentLoaded', () => {
       favoritePanel &&
       favoritePanelToggle &&
       !favoritePanel.contains(e.target) &&
-      !favoritePanelToggle.contains(e.target)
+      !favoritePanelToggle.contains(e.target) &&
+      !(favoritesRefreshBtn && favoritesRefreshBtn.contains(e.target))
     ) {
       setFavoritePanelOpen(false);
     }

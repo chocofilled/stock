@@ -5,6 +5,10 @@
       "destination": "https://m.stock.naver.com/api/stock/:path*"
     },
     {
+      "source": "/api/news/:path*",
+      "destination": "https://m.stock.naver.com/api/news/:path*"
+    },
+    {
       "source": "/api/exchange/:path*",
       "destination": "https://open.er-api.com/:path*"
     },

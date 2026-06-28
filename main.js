@@ -35,6 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const chartPeriodVal = document.getElementById('chart-period-val');
   const sparklineCanvas = document.getElementById('stock-sparkline-canvas');
 
+  const newsContainer = document.getElementById('stock-news-container');
+  const newsCountBadge = document.getElementById('news-count-badge');
+  const newsSummaryBox = document.getElementById('news-summary-box');
+  const newsList = document.getElementById('news-list');
+
   const FAVORITES_KEY = 'favorite_stocks_v1';
   const US_EXCHANGES = new Set(['NMS', 'NYQ', 'ASE', 'NGM', 'NCM', 'PCX', 'BTS']);
 
@@ -46,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let favoriteStocks = loadFavoriteStocks();
   let favoritePanelOpen = false;
   let favoriteAlertMap = new Map();
+  let openedFromFavorites = false;
 
   function getChosung(str) {
     const cho = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
@@ -242,7 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (open) renderFavoritePanel();
   }
 
-  function closeCurrentStockPanel() {
+  function closeCurrentStockPanel(e) {
+    if (e && typeof e.stopPropagation === 'function') {
+      e.stopPropagation(); // document의 클릭 핸들러가 즐겨찾기 패널을 바로 닫지 않도록 이벤트 전파 방지
+    }
+    
     infoPanel.classList.add('hidden');
     if (alertPanel) alertPanel.classList.add('hidden');
     currentStock = null;
@@ -250,6 +260,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dropdownList.classList.add('hidden');
     dropdownList.innerHTML = '';
     syncFavoriteButton();
+
+    if (openedFromFavorites) {
+      openedFromFavorites = false;
+      setFavoritePanelOpen(true);
+    }
   }
 
   function renderFavoritePanel() {
@@ -446,6 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // HTML5 drag 앤 drop에서는 drag 시 click이 보통 트리거되지 않지만, 브라우저에 따라 발생할 수도 있음.
         // 확인 결과: HTML5 Drag start가 되면 dragend로 마무리되고, 마우스를 뗄 때 click 이벤트는 일반적으로 발생하지 않음 (드래그 마우스 다운 -> 이동 -> 업 은 클릭으로 인정 안 됨).
         // 따라서 그냥 평소대로 selectStock을 하도록 둠.
+        openedFromFavorites = true;
         selectStock(stock);
         setFavoritePanelOpen(false);
       });
@@ -609,7 +625,10 @@ document.addEventListener('DOMContentLoaded', () => {
         meta.appendChild(code);
         item.appendChild(name);
         item.appendChild(meta);
-        item.addEventListener('click', () => selectStock(stock));
+        item.addEventListener('click', () => {
+          openedFromFavorites = false;
+          selectStock(stock);
+        });
         dropdownList.appendChild(item);
       });
     }
@@ -857,6 +876,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (alertPanel) alertPanel.classList.add('hidden');
     if (chartContainer) chartContainer.classList.add('hidden');
+    if (newsContainer) newsContainer.classList.add('hidden');
+    if (newsSummaryBox) {
+      newsSummaryBox.innerHTML = '';
+      newsSummaryBox.className = 'news-summary-box loading';
+      newsSummaryBox.textContent = '뉴스 요약 분석 중...';
+    }
+    if (newsList) newsList.innerHTML = '';
     
     if (alertToggle) {
       const isFav = isFavorite(stock);
@@ -955,6 +981,294 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (chartError) {
       console.warn('Mini chart load failed (ignoring error to preserve price details):', chartError);
     }
+
+    // 3. 오늘 뉴스 수집 및 요약 처리 (별도 예외 격리)
+    try {
+      const newsItems = await fetchStockNews(stock);
+      renderStockNews(stock, newsItems);
+    } catch (newsError) {
+      console.warn('Stock news load/summary failed:', newsError);
+      if (newsSummaryBox) {
+        newsSummaryBox.className = 'news-summary-box';
+        newsSummaryBox.textContent = '뉴스 정보를 불러오지 못했습니다.';
+      }
+      if (newsContainer) newsContainer.classList.remove('hidden');
+    }
+  }
+
+  async function queryYahooNews(queryStr) {
+    try {
+      const res = await fetch(`/api/yahoo/v1/finance/search?q=${encodeURIComponent(queryStr)}&newsCount=15`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.news || [];
+    } catch (e) {
+      console.warn('Yahoo query failed for:', queryStr, e);
+      return [];
+    }
+  }
+
+  function filterYahooNews(newsList, ticker, companyName) {
+    const tickerPure = ticker.replace('.T', ''); // 일본 주식 등에서 '.T' 제거한 순수 번호
+    const nameWords = companyName.toLowerCase().split(/\s+/).filter(w => w.length > 2); // 3글자 이상 단어들
+
+    return newsList.filter(item => {
+      const titleLower = item.title.toLowerCase();
+      
+      // relatedTickers 분석
+      const related = (item.relatedTickers || []).map(t => t.toUpperCase());
+      const hasTicker = related.some(r => r.includes(tickerPure) || tickerPure.includes(r));
+
+      // 타이틀 내 키워드 언급 분석
+      const mentionsTicker = titleLower.includes(tickerPure.toLowerCase()) || (item.relatedTickers && item.relatedTickers.length > 0 && titleLower.includes(item.relatedTickers[0].toLowerCase()));
+      const mentionsName = nameWords.some(word => titleLower.includes(word));
+
+      // 관련성이 있는 기사 조건
+      return hasTicker || mentionsTicker || mentionsName;
+    });
+  }
+
+  async function fetchStockNews(stock) {
+    if (stock.country === 'JP' || stock.country === 'US') {
+      const cleanTicker = stock.code.toUpperCase();
+      const rawName = stock.name;
+      const cleanName = rawName
+        .replace(/Corporation|Corp\.|Corp|Incorporated|Inc\.|Inc|Company|Co\.|Co|Limited|Ltd\.|Ltd/gi, '')
+        .trim();
+
+      // 1차 시도: Ticker 코드로 조회
+      let newsItems = await queryYahooNews(stock.code);
+      let filtered = filterYahooNews(newsItems, cleanTicker, cleanName);
+
+      // 2차 시도: 1차 결과가 부족하고 회사 이름이 있을 때 회사명으로 조회
+      if (filtered.length < 3 && cleanName.length > 0) {
+        const fallbackNews = await queryYahooNews(cleanName);
+        const filteredFallback = filterYahooNews(fallbackNews, cleanTicker, cleanName);
+        
+        // 중복 제거하여 합치기
+        const seenUuids = new Set(filtered.map(x => x.uuid));
+        filteredFallback.forEach(item => {
+          if (!seenUuids.has(item.uuid)) {
+            filtered.push(item);
+          }
+        });
+      }
+
+      return filtered.slice(0, 10).map(item => ({
+        title: item.title,
+        office: item.publisher || 'Yahoo Finance',
+        url: item.link,
+        datetime: item.providerPublishTime ? new Date(item.providerPublishTime * 1000) : new Date()
+      }));
+    } else {
+      const res = await fetch(`/api/news/stock/${stock.code}?pageSize=15`);
+      if (!res.ok) throw new Error('Naver News fetch failed');
+      const data = await res.json();
+      const items = data.flatMap(group => group.items || []);
+      return items.map(item => {
+        let dateObj = new Date();
+        const dt = item.datetime;
+        if (dt && dt.length >= 12) {
+          const y = parseInt(dt.substring(0, 4), 10);
+          const m = parseInt(dt.substring(4, 6), 10) - 1;
+          const d = parseInt(dt.substring(6, 8), 10);
+          const h = parseInt(dt.substring(8, 10), 10);
+          const min = parseInt(dt.substring(10, 12), 10);
+          dateObj = new Date(y, m, d, h, min);
+        }
+        return {
+          title: item.titleFull || item.title,
+          body: item.body,
+          office: item.officeName,
+          url: item.mobileNewsUrl,
+          datetime: dateObj
+        };
+      });
+    }
+  }
+
+  function generateNewsSummary(newsItems, stock) {
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+    
+    const todayNews = newsItems.filter(item => {
+      const itemYear = item.datetime.getFullYear();
+      const itemMonth = String(item.datetime.getMonth() + 1).padStart(2, '0');
+      const itemDate = String(item.datetime.getDate()).padStart(2, '0');
+      return `${itemYear}${itemMonth}${itemDate}` === todayStr;
+    });
+
+    if (todayNews.length === 0) {
+      return {
+        isToday: false,
+        summary: `오늘(${today.toLocaleDateString('ko-KR')}) 등록된 신규 뉴스 기사가 없습니다. 최신 관련 뉴스를 아래 목록에서 확인해 보세요.`
+      };
+    }
+
+    let sentences = [];
+    todayNews.forEach(item => {
+      if (item.title) {
+        sentences.push({ text: cleanText(item.title), score: 0, origin: item });
+      }
+      if (item.body) {
+        const rawSentences = item.body.split(/[.?!]\s+/).map(s => s.trim()).filter(Boolean);
+        rawSentences.forEach(s => {
+          sentences.push({ text: cleanText(s), score: 0, origin: item });
+        });
+      }
+    });
+
+    function cleanText(str) {
+      return str
+        .replace(/&quot;/g, '"')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&#39;/g, "'")
+        .replace(/&apos;/g, "'")
+        .replace(/\[[^\]]*\]/g, '')
+        .trim();
+    }
+
+    const stockNameClean = stock.name.toLowerCase().replace(/\s+/g, '');
+    const stockCode = stock.code.toLowerCase();
+    
+    const keyTerms = [
+      '실적', '주가', '상승', '하락', '최고', '최저', '매수', '전망', '분석', 
+      'HBM', 'AI', '수혜', '공급', '탈퇴', '파업', '반등', '목표가', '상향',
+      '하향', '매도', '영업이익', '매출', '흑자', '적자', '계약', '인수', '합병'
+    ];
+
+    sentences.forEach(s => {
+      const lowerText = s.text.toLowerCase();
+      let score = 0;
+
+      if (lowerText.includes(stockNameClean)) score += 15;
+      if (lowerText.includes(stockCode)) score += 10;
+
+      keyTerms.forEach(term => {
+        if (lowerText.includes(term)) score += 5;
+      });
+
+      if (s.text === cleanText(s.origin.title)) {
+        score += 8;
+      }
+
+      if (s.text.length < 15) score -= 10;
+      if (s.text.length > 100) score -= 5;
+      if (s.text.length > 150) score -= 15;
+
+      s.score = score;
+    });
+
+    sentences.sort((a, b) => b.score - a.score);
+
+    const selectedSentences = [];
+    for (const s of sentences) {
+      if (selectedSentences.length >= 3) break;
+      if (s.score < 5) continue;
+      
+      const isDuplicate = selectedSentences.some(selected => {
+        const setA = new Set(selected.split(' '));
+        const setB = new Set(s.text.split(' '));
+        const intersection = new Set([...setA].filter(x => setB.has(x)));
+        const union = new Set([...setA, ...setB]);
+        return (intersection.size / union.size) > 0.4;
+      });
+
+      if (!isDuplicate) {
+        let text = s.text;
+        if (!/[.!?]$/.test(text)) {
+          text += '.';
+        }
+        selectedSentences.push(text);
+      }
+    }
+
+    if (selectedSentences.length === 0) {
+      const topTitles = todayNews.slice(0, 3).map(item => cleanText(item.title));
+      return {
+        isToday: true,
+        summary: topTitles
+      };
+    }
+
+    return {
+      isToday: true,
+      summary: selectedSentences
+    };
+  }
+
+  function renderStockNews(stock, newsItems) {
+    if (!newsContainer || !newsCountBadge || !newsSummaryBox || !newsList) return;
+
+    newsCountBadge.textContent = String(newsItems.length);
+    newsSummaryBox.innerHTML = '';
+    newsList.innerHTML = '';
+
+    if (newsItems.length === 0) {
+      newsSummaryBox.className = 'news-summary-box';
+      newsSummaryBox.textContent = '최근 등록된 관련 뉴스 기사가 없습니다.';
+      newsContainer.classList.remove('hidden');
+      return;
+    }
+
+    const { isToday, summary } = generateNewsSummary(newsItems, stock);
+    
+    newsSummaryBox.className = 'news-summary-box';
+    if (typeof summary === 'string') {
+      newsSummaryBox.textContent = summary;
+    } else if (Array.isArray(summary)) {
+      const ul = document.createElement('ul');
+      summary.forEach(text => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        ul.appendChild(li);
+      });
+      newsSummaryBox.appendChild(ul);
+    }
+
+    newsItems.forEach(item => {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'news-list-item';
+      
+      const titleEl = document.createElement('div');
+      titleEl.className = 'news-item-title';
+      titleEl.textContent = item.title.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+      const metaEl = document.createElement('div');
+      metaEl.className = 'news-item-meta';
+
+      const officeEl = document.createElement('span');
+      officeEl.className = 'news-item-office';
+      officeEl.textContent = item.office;
+
+      const timeEl = document.createElement('span');
+      timeEl.className = 'news-item-time';
+      
+      const now = new Date();
+      const isTodayItem = item.datetime.toDateString() === now.toDateString();
+      if (isTodayItem) {
+        timeEl.textContent = `${String(item.datetime.getHours()).padStart(2, '0')}:${String(item.datetime.getMinutes()).padStart(2, '0')}`;
+      } else {
+        timeEl.textContent = `${item.datetime.getFullYear()}.${String(item.datetime.getMonth() + 1).padStart(2, '0')}.${String(item.datetime.getDate()).padStart(2, '0')}`;
+      }
+
+      metaEl.appendChild(officeEl);
+      metaEl.appendChild(timeEl);
+      itemEl.appendChild(titleEl);
+      itemEl.appendChild(metaEl);
+
+      itemEl.addEventListener('click', () => {
+        if (item.url) {
+          window.open(item.url, '_blank');
+        }
+      });
+
+      newsList.appendChild(itemEl);
+    });
+
+    newsContainer.classList.remove('hidden');
   }
 
   function formatExchangeUpdateTime(value) {
@@ -1039,7 +1353,10 @@ document.addEventListener('DOMContentLoaded', () => {
       updateActiveItem(items);
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (activeIndex >= 0 && activeIndex < filteredStocks.length) selectStock(filteredStocks[activeIndex]);
+      if (activeIndex >= 0 && activeIndex < filteredStocks.length) {
+        openedFromFavorites = false;
+        selectStock(filteredStocks[activeIndex]);
+      }
     } else if (e.key === 'Escape') {
       dropdownList.classList.add('hidden');
     }

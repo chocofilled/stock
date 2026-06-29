@@ -954,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return points;
   }
 
-  function drawSparkline(points) {
+  function drawSparkline(points, isTodayUp) {
     if (!sparklineCanvas) return;
     const ctx = sparklineCanvas.getContext('2d');
     if (!ctx) return;
@@ -987,7 +987,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return height - padding - ((val - minVal) / valRange) * chartHeight;
     };
 
-    const isUp = prices[prices.length - 1] >= prices[0];
+    // 파라미터가 명시적으로 불리언으로 넘어오면 그것을 쓰고, 없으면 15영업일 비교 폴백
+    const isUp = typeof isTodayUp === 'boolean' ? isTodayUp : (prices[prices.length - 1] >= prices[0]);
     
     // 8비트 레트로 색상 연동 (상승: 빨간색, 하락: 파란색 — 국내 주식 관례)
     const strokeColor = isUp ? '#ff0055' : '#00aaff';
@@ -1120,8 +1121,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 1. 필수 가격 정보 조회 (CORS 우회 로컬 프록시 / Vercel 연동)
+    let priceInfo;
     try {
-      let priceInfo;
       if (stock.country === 'JP' || stock.country === 'US') {
         priceInfo = await fetchYahooPrice(stock);
         const locale = stock.country === 'JP' ? 'ja-JP' : 'en-US';
@@ -1172,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chartPeriodVal.textContent = `${startMD} ~ ${endMD}`;
 
         chartContainer.classList.remove('hidden');
-        drawSparkline(chartPoints);
+        drawSparkline(chartPoints, priceInfo ? priceInfo.ratio >= 0 : undefined);
       }
     } catch (chartError) {
       console.warn('Mini chart load failed (ignoring error to preserve price details):', chartError);

@@ -1,25 +1,28 @@
+@import url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&display=swap');
+
 /* Design System & Variables */
 :root {
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: 'DungGeunMo', 'Press Start 2P', 'Silkscreen', monospace;
   
-  /* Color Palette - HSL Tailored */
-  --bg-dark: hsl(230, 25%, 7%);
-  --card-bg: hsla(230, 25%, 12%, 0.45);
-  --card-border: hsla(230, 25%, 25%, 0.3);
+  /* Color Palette - Retro 8-bit */
+  --bg-dark: #070913;
+  --card-bg: #111424;
+  --card-border: #ffffff;
   
-  --primary-glow: hsla(270, 85%, 60%, 0.15);
-  --secondary-glow: hsla(190, 90%, 50%, 0.12);
+  --primary-glow: rgba(102, 252, 241, 0.05);
+  --secondary-glow: rgba(255, 0, 128, 0.03);
   
-  --text-primary: hsl(0, 0%, 96%);
-  --text-secondary: hsl(230, 15%, 70%);
-  --text-muted: hsl(230, 10%, 50%);
+  --text-primary: #ffffff;
+  --text-secondary: #c5c6c7;
+  --text-muted: #00ffcc;
   
-  --accent-purple: hsl(270, 90%, 65%);
-  --accent-cyan: hsl(185, 95%, 48%);
+  --accent-purple: #bd00ff;
+  --accent-cyan: #00ffcc;
   
-  --gradient-text: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-cyan) 100%);
-  --gradient-btn: linear-gradient(135deg, hsl(270, 85%, 60%) 0%, hsl(190, 85%, 45%) 100%);
-  --gradient-border: linear-gradient(135deg, hsla(270, 85%, 60%, 0.4) 0%, hsla(190, 85%, 45%, 0.4) 100%);
+  --gradient-text: linear-gradient(90deg, var(--accent-purple) 0%, var(--accent-cyan) 100%);
+  --gradient-btn: #1f2833;
+  --gradient-border: #ffffff;
 }
 
 * {
@@ -1449,4 +1452,207 @@ body {
 
 .news-item-time {
   font-family: var(--font-sans);
+}
+
+/* ==========================================
+   8-BIT RETRO THEME OVERRIDES (오락실 테마)
+   ========================================== */
+
+/* 8비트 픽셀 이미지 렌더링 활성화 */
+body {
+  image-rendering: pixelated;
+  background-color: #070913;
+}
+
+/* 글래스모피즘 요소 무력화 및 각진 픽셀 테두리와 플랫 섀도우 적용 */
+.card, 
+.stock-info-panel, 
+.favorites-panel, 
+.stock-news-container, 
+.stock-chart-container, 
+.stock-alert-panel,
+.exchange-box {
+  border-radius: 0 !important;
+  border: 4px solid #ffffff !important;
+  box-shadow: 8px 8px 0px #000000 !important;
+  background: #111424 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* 내부 그라데이션 광선 제거 */
+.card-border-gradient {
+  display: none !important;
+}
+
+/* 폰트 및 텍스트 섀도우 커스텀 */
+.title {
+  font-family: 'Press Start 2P', 'DungGeunMo', var(--font-sans) !important;
+  font-size: 26px !important;
+  text-shadow: 3px 3px 0px #000000;
+  letter-spacing: -0.5px;
+}
+
+.stock-name, .favorite-item-name, .news-item-title {
+  font-weight: normal !important;
+  letter-spacing: -0.2px;
+}
+
+/* 픽셀 버튼 디자인 */
+button, 
+.favorite-toggle, 
+.favorites-refresh, 
+.favorites-panel-toggle, 
+.stock-panel-close, 
+.alert-save-btn {
+  border-radius: 0 !important;
+  border: 3px solid #ffffff !important;
+  background: #1f2833 !important;
+  color: #ffffff !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  font-family: var(--font-sans) !important;
+  font-weight: normal !important;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: none !important; /* 애니메이션 대신 딱딱 끊기는 느낌 */
+}
+
+button:hover,
+.favorite-toggle:hover,
+.favorites-refresh:hover,
+.favorites-panel-toggle:hover,
+.stock-panel-close:hover,
+.alert-save-btn:hover {
+  background: #45a29e !important;
+  color: #000000 !important;
+  transform: none !important;
+}
+
+button:active, 
+.favorite-toggle:active,
+.favorites-refresh:active,
+.favorites-panel-toggle:active,
+.stock-panel-close:active,
+.alert-save-btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+}
+
+/* 픽셀 입력창 */
+.search-container input {
+  border-radius: 0 !important;
+  border: 3px solid #ffffff !important;
+  background: #000000 !important;
+  color: #00ffcc !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  font-family: var(--font-sans) !important;
+}
+
+.search-container input:focus {
+  border-color: #bd00ff !important;
+  box-shadow: 4px 4px 0px #bd00ff !important;
+  background: #000000 !important;
+}
+
+/* 자동완성 드롭다운 & 각종 아이템 */
+.autocomplete-dropdown, 
+.dropdown-item, 
+.favorite-item, 
+.news-list-item,
+.alert-input-group {
+  border-radius: 0 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  background: #1b1e2c !important;
+  transition: none !important;
+}
+
+.dropdown-item:hover, 
+.dropdown-item.active,
+.favorite-item:hover,
+.favorite-item.active,
+.news-list-item:hover {
+  background: #00ffcc !important;
+  color: #000000 !important;
+  border-color: #00ffcc !important;
+}
+
+.dropdown-item:hover .dropdown-item-code,
+.dropdown-item.active .dropdown-item-code,
+.favorite-item:hover .favorite-item-name,
+.favorite-item:hover .favorite-item-code,
+.favorite-item:hover .favorite-item-price,
+.favorite-item:hover .favorite-item-ratio,
+.favorite-item.active .favorite-item-name,
+.favorite-item.active .favorite-item-code,
+.favorite-item.active .favorite-item-price,
+.favorite-item.active .favorite-item-ratio,
+.news-list-item:hover .news-item-title,
+.news-list-item:hover .news-item-time,
+.news-list-item:hover .news-item-office {
+  color: #000000 !important;
+}
+
+/* 태그 및 뱃지 스타일 */
+.badge, .market-tag, .market-badge, .news-count-badge {
+  border-radius: 0 !important;
+  border: 2px solid #ffffff !important;
+  font-weight: normal !important;
+  text-transform: uppercase;
+}
+
+.market-badge.kospi, .market-tag.kospi {
+  background: #bd00ff !important;
+  color: #ffffff !important;
+}
+
+.market-badge.kosdaq, .market-tag.kosdaq {
+  background: #00ffcc !important;
+  color: #000000 !important;
+}
+
+.market-badge.overtime {
+  background: #ff9900 !important;
+  color: #000000 !important;
+}
+
+/* 등락률 텍스트 레트로 컬러 */
+.stock-price-change.up, .favorite-item-ratio.up {
+  color: #ff0055 !important; /* 강렬한 레트로 레드/핑크 */
+  background: transparent !important;
+  border: none !important;
+}
+
+.stock-price-change.down, .favorite-item-ratio.down {
+  color: #00aaff !important; /* 선명한 레트로 블루 */
+  background: transparent !important;
+  border: none !important;
+}
+
+.stock-price-change.flat, .favorite-item-ratio.flat {
+  color: #c5c6c7 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* 픽셀 장식 배경용 그리드 */
+#app::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 환율 정보 박스 테두리 */
+.exchange-separator {
+  background-color: #ffffff !important;
+  width: 2px !important;
 }

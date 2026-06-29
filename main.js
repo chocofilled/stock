@@ -780,6 +780,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = sparklineCanvas.getContext('2d');
     if (!ctx) return;
 
+    // 안티앨리어싱 비활성화 (픽셀 렌더링 강조)
+    ctx.imageSmoothingEnabled = false;
+
     const dpr = window.devicePixelRatio || 1;
     const rect = sparklineCanvas.getBoundingClientRect();
 
@@ -806,43 +809,48 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const isUp = prices[prices.length - 1] >= prices[0];
-    const strokeColor = isUp ? 'hsl(185, 95%, 48%)' : 'hsl(270, 90%, 65%)';
-    const gradientStart = isUp ? 'hsla(185, 95%, 48%, 0.35)' : 'hsla(270, 90%, 65%, 0.35)';
+    
+    // 8비트 레트로 색상 연동 (상승: 네온 시안, 하락: 레트로 핑크)
+    const strokeColor = isUp ? '#00ffcc' : '#ff0055';
 
-    // 배경 그라데이션
+    // 1. 차트 하단 영역 투박한 픽셀 블록 느낌의 채우기
+    ctx.fillStyle = isUp ? 'rgba(0, 255, 204, 0.08)' : 'rgba(255, 0, 85, 0.08)';
     ctx.beginPath();
-    ctx.moveTo(getX(0), height);
+    ctx.moveTo(Math.round(getX(0)), height);
     for (let i = 0; i < points.length; i++) {
-      ctx.lineTo(getX(i), getY(prices[i]));
+      ctx.lineTo(Math.round(getX(i)), Math.round(getY(prices[i])));
     }
-    ctx.lineTo(getX(points.length - 1), height);
+    ctx.lineTo(Math.round(getX(points.length - 1)), height);
     ctx.closePath();
-
-    const fillGrad = ctx.createLinearGradient(0, padding, 0, height);
-    fillGrad.addColorStop(0, gradientStart);
-    fillGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = fillGrad;
     ctx.fill();
 
-    // 꺾은선 그리기 (글로우 효과)
-    ctx.beginPath();
-    ctx.moveTo(getX(0), getY(prices[0]));
-    for (let i = 1; i < points.length; i++) {
-      ctx.lineTo(getX(i), getY(prices[i]));
-    }
-
-    ctx.shadowColor = strokeColor;
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-
+    // 2. 굵은 픽셀 꺾은선 그리기 (글로우 제거)
+    ctx.shadowBlur = 0;
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = 2.2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'square';
+    ctx.lineJoin = 'miter';
+
+    ctx.beginPath();
+    ctx.moveTo(Math.round(getX(0)), Math.round(getY(prices[0])));
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(Math.round(getX(i)), Math.round(getY(prices[i])));
+    }
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
+    // 3. 각 값 위치에 8비트 사각형 도트 배치
+    for (let i = 0; i < points.length; i++) {
+      const px = Math.round(getX(i));
+      const py = Math.round(getY(prices[i]));
+      
+      // 바깥쪽 검은색 테두리 사각형
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(px - 4, py - 4, 8, 8);
+      
+      // 안쪽 흰색 사각형 도트
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(px - 2, py - 2, 4, 4);
+    }
   }
 
   async function fetchYahooPrice(stock) {

@@ -579,12 +579,11 @@ body {
   to { transform: translateY(-50%) rotate(360deg); }
 }
 
-/* Autocomplete Dropdown */
 .autocomplete-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  width: 100%;
+  position: relative !important;
+  top: 8px !important;
+  margin-bottom: 12px !important;
+  width: 100% !important;
   max-height: 180px;
   overflow-y: auto;
   background: hsla(230, 25%, 10%, 0.95);
@@ -596,6 +595,7 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   padding: 4px;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: block !important;
 }
 
 /* Scrollbar styles */
@@ -617,9 +617,7 @@ body {
 }
 
 .autocomplete-dropdown.hidden {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.98);
-  pointer-events: none;
+  display: none !important;
 }
 
 .dropdown-item {
@@ -1818,4 +1816,105 @@ button:active,
 .favorites-refresh.completed {
   border-color: #ffffff !important;
   box-shadow: 3px 3px 0px #000000 !important;
+}
+
+/* ==========================================================================
+   🎮 RETRO THEME BOARD (13가지 테마 전광판)
+   ========================================================================== */
+.theme-board {
+  display: flex !important;
+  overflow-x: auto !important;
+  white-space: nowrap !important;
+  gap: 8px !important;
+  padding: 12px 6px !important;
+  margin-top: 10px !important;
+  margin-bottom: 16px !important;
+  border: 2px solid #ffffff !important;
+  background: #111424 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+  scrollbar-width: none !important; /* Firefox 스크롤바 숨김 */
+}
+
+.theme-board::-webkit-scrollbar {
+  display: none !important; /* Chrome/Safari 스크롤바 숨김 */
+}
+
+.theme-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 10px !important;
+  border: 2px solid #ffffff !important;
+  background: #1b1e2c !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+  cursor: default;
+  user-select: none;
+  font-family: 'Press Start 2P', 'DungGeunMo', sans-serif !important;
+  font-size: 10px !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+/* [흑백 상태] 하락 또는 보합 테마 */
+.theme-item.gray {
+  filter: grayscale(100%) !important;
+  opacity: 0.35 !important;
+  border-color: #777788 !important;
+  background: #151824 !important;
+}
+
+/* [컬러 상태] 오늘 오르고 있는(상승) 테마 */
+.theme-item.active {
+  filter: none !important;
+  opacity: 1 !important;
+  border-color: #00ffcc !important; /* 네온 시안 테두리 */
+  box-shadow: 3px 3px 0px #00ffcc !important; /* 네온 시안 입체 그림자 */
+  background: #1b1e2c !important;
+}
+
+/* 흑백 테마 카드에 마우스 호버 시 흑백이 풀리며 보라색 네온으로 활성 피드백 */
+.theme-item.gray:hover {
+  filter: none !important;
+  opacity: 0.85 !important;
+  border-color: #bd00ff !important;
+  box-shadow: 3px 3px 0px #bd00ff !important;
+}
+
+.theme-item-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: inherit !important;
+}
+
+.theme-item-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+  shape-rendering: crispEdges !important;
+}
+
+.theme-item-name {
+  color: #ffffff !important;
+  font-family: 'DungGeunMo', sans-serif !important;
+  font-size: 12px !important;
+}
+
+.theme-item-rate {
+  font-family: 'Press Start 2P', 'Silkscreen', sans-serif !important;
+  font-size: 9px !important;
+  margin-left: 2px !important;
+}
+
+.theme-item-rate.up {
+  color: #00ffcc !important; /* 상승시 시안색 활성화 */
+}
+
+.theme-item-rate.down {
+  color: #ff0055 !important; /* 하락시 붉은색 */
+}
+
+.theme-item-rate.flat {
+  color: #888899 !important;
 }

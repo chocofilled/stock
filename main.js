@@ -303,7 +303,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadFavoriteStocks() {
     try {
       const parsed = JSON.parse(localStorage.getItem(FAVORITES_KEY));
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) return [];
+      
+      const seen = new Set();
+      const unique = [];
+      parsed.forEach((item) => {
+        const key = getStockKey(item);
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(item);
+        }
+      });
+      return unique;
     } catch (e) {
       return [];
     }

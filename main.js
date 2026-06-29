@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const alertSaveBtn = document.getElementById('alert-settings-save');
   const favoritesRefreshBtn = document.getElementById('favorites-refresh');
   const themeBoard = document.getElementById('theme-board');
+  const searchSection = document.querySelector('.search-section');
+  const exchangeBox = document.getElementById('exchange-box');
 
   const chartContainer = document.getElementById('stock-chart-container');
   const chartPeriodVal = document.getElementById('chart-period-val');
@@ -374,7 +376,21 @@ document.addEventListener('DOMContentLoaded', () => {
       favoritePanelToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       favoritePanelToggle.setAttribute('aria-label', open ? '즐겨찾기 목록 닫기' : '즐겨찾기 목록 열기');
     }
-    if (open) renderFavoritePanel();
+    if (open) {
+      renderFavoritePanel();
+    } else {
+      // 즐겨찾기 패널 닫힐 때 → 즐겨찾기에서 열었던 상세정보도 함께 닫기
+      if (openedFromFavorites) {
+        openedFromFavorites = false;
+        infoPanel.classList.add('hidden');
+        if (alertPanel) alertPanel.classList.add('hidden');
+        currentStock = null;
+        searchInput.value = '';
+        dropdownList.classList.add('hidden');
+        dropdownList.innerHTML = '';
+        syncFavoriteButton();
+      }
+    }
   }
 
   function closeCurrentStockPanel(e) {
@@ -389,6 +405,15 @@ document.addEventListener('DOMContentLoaded', () => {
     dropdownList.classList.add('hidden');
     dropdownList.innerHTML = '';
     syncFavoriteButton();
+
+    // 즐겨찾기 모드에서 열린 상세 패널이었다면 검색창/환율박스 다시 표시
+    if (openedFromFavorites) {
+      if (searchSection) searchSection.style.display = '';
+      if (exchangeBox && exchangeBox.dataset.visibleBefore === 'true') {
+        exchangeBox.style.display = '';
+        delete exchangeBox.dataset.visibleBefore;
+      }
+    }
 
     if (openedFromFavorites) {
       openedFromFavorites = false;
@@ -591,8 +616,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 확인 결과: HTML5 Drag start가 되면 dragend로 마무리되고, 마우스를 뗄 때 click 이벤트는 일반적으로 발생하지 않음 (드래그 마우스 다운 -> 이동 -> 업 은 클릭으로 인정 안 됨).
         // 따라서 그냥 평소대로 selectStock을 하도록 둠.
         openedFromFavorites = true;
+        // 즐겨찾기 패널은 유지하고 (setFavoritePanelOpen(false) 호출 안 함)
+        // 테마보드는 이미 hidden 상태이므로 유지, 상세정보는 패널 아래쪽에 표시됨
         selectStock(stock);
-        setFavoritePanelOpen(false);
+        renderFavoritePanel(); // 선택된 행에 active 클래스 갱신
       });
 
       favoriteList.appendChild(row);
@@ -1059,6 +1086,15 @@ document.addEventListener('DOMContentLoaded', () => {
     changeValEl.textContent = '';
     changeRatioEl.textContent = '';
     infoPanel.classList.remove('hidden');
+
+    // 즐겨찾기 모드 중 종목 선택 시: 검색창과 환율박스를 숨기고 패널 아래에 상세정보 표시
+    if (openedFromFavorites) {
+      if (searchSection) searchSection.style.display = 'none';
+      if (exchangeBox && exchangeBox.style.display !== 'none') {
+        exchangeBox.dataset.visibleBefore = 'true';
+        exchangeBox.style.display = 'none';
+      }
+    }
 
     // 1. 필수 가격 정보 조회 (CORS 우회 로컬 프록시 / Vercel 연동)
     try {

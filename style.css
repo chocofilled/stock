@@ -1929,4 +1929,18 @@ button:active,
   display: block !important;
 }
 
+/* ==========================================================================
+   즐겨찾기 활성화 중 상세정보 패널 — 구분선 및 여백
+   ========================================================================== */
+/* 즐겨찾기 패널이 활성화된 상태에서 상세정보 패널을 인라인으로 표시할 때
+   상단에 픽셀 구분선(2px 흰색 테두리)과 여백으로 섹션을 구분합니다 */
+.favorites-panel:not(.hidden) ~ .search-section,
+.favorites-panel:not(.hidden) ~ #exchange-box {
+  /* JS에서 display:none 처리하므로 CSS는 보조 역할만 */
+}
 
+.favorites-panel:not(.hidden) ~ #stock-info-panel:not(.hidden) {
+  border-top: 2px solid #ffffff !important;
+  margin-top: 10px !important;
+  padding-top: 10px !important;
+}

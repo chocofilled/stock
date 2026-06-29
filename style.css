@@ -894,7 +894,7 @@ body {
 .favorites-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px !important;
 }
 
 .favorites-empty {
@@ -912,7 +912,7 @@ body {
   border: 1px solid hsla(230, 25%, 20%, 0.35);
   border-radius: 12px;
   background: hsla(230, 25%, 8%, 0.4);
-  padding: 12px 14px;
+  padding: 6px 10px !important;
   color: var(--text-primary);
   cursor: grab;
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
@@ -951,7 +951,7 @@ body {
 }
 
 .favorite-item-name {
-  font-size: 12.5px;
+  font-size: 11px !important;
   font-weight: 700;
   color: var(--text-primary);
   overflow: hidden;

@@ -656,6 +656,31 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  async function fetchYahooPricesBatch(codes) {
+    if (codes.length === 0) return new Map();
+    try {
+      const symbolsParam = codes.map(c => encodeURIComponent(c)).join(',');
+      const res = await fetch(`/api/yahoo/v7/finance/quote?symbols=${symbolsParam}`);
+      if (!res.ok) throw new Error('Yahoo Finance batch fetch failed');
+      
+      const data = await res.json();
+      const quotes = data.quoteResponse?.result || [];
+      
+      const resultMap = new Map();
+      quotes.forEach(q => {
+        const price = q.regularMarketPrice || 0;
+        const change = q.regularMarketChange || 0;
+        const ratio = q.regularMarketChangePercent || 0;
+        const currency = q.currency || 'USD';
+        resultMap.set(q.symbol, { price, change, ratio, currency });
+      });
+      return resultMap;
+    } catch (e) {
+      console.warn('Yahoo batch fetch error fallback to empty:', e);
+      return new Map();
+    }
+  }
+
   async function fetchFavoritePriceInfo(stock) {
     if (stock.country === 'JP' || stock.country === 'US') {
       return fetchYahooPrice(stock);
@@ -672,12 +697,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const results = await Promise.allSettled(
-        favoriteStocks.map(async (stock) => {
-          const info = await fetchFavoritePriceInfo(stock);
+      // 1. 국내 주식과 해외 주식 분류
+      const krStocks = [];
+      const globalStocks = [];
+      favoriteStocks.forEach(s => {
+        if (s.country === 'JP' || s.country === 'US') {
+          globalStocks.push(s);
+        } else {
+          krStocks.push(s);
+        }
+      });
+
+      // 2. 해외 주식 묶음 호출 (Yahoo v7 quote API)
+      const globalCodes = globalStocks.map(s => s.code);
+      const globalResultsMap = await fetchYahooPricesBatch(globalCodes);
+
+      // 3. 국내 주식 병렬 개별 호출 (Naver domestic API)
+      const krPricesResults = await Promise.allSettled(
+        krStocks.map(async (stock) => {
+          const info = await fetchKoreanRealtimePrice(stock);
+          return { key: getStockKey(stock), info };
+        })
+      );
+
+      const nextMap = new Map();
+
+      // 4. 해외 주식 결과 맵 이식 및 알림 조건 검사
+      globalStocks.forEach(stock => {
+        const info = globalResultsMap.get(stock.code);
+        const key = getStockKey(stock);
+        if (info) {
           const alertType = stock.alertType || 'percent';
           const alertVal = stock.alertValue !== undefined ? stock.alertValue : 3.0;
-
           let up = false;
           let down = false;
 
@@ -690,29 +741,34 @@ document.addEventListener('DOMContentLoaded', () => {
             down = info.price <= alertVal;
           }
 
-          return { 
-            key: getStockKey(stock), 
-            up, 
-            down, 
-            price: info.price, 
-            ratio: info.ratio, 
-            currency: info.currency 
-          };
-        })
-      );
-
-      const nextMap = new Map();
-      for (const result of results) {
-        if (result.status === 'fulfilled') {
-          nextMap.set(result.value.key, { 
-            up: result.value.up, 
-            down: result.value.down, 
-            price: result.value.price, 
-            ratio: result.value.ratio, 
-            currency: result.value.currency 
-          });
+          nextMap.set(key, { up, down, price: info.price, ratio: info.ratio, currency: info.currency });
         }
-      }
+      });
+
+      // 5. 국내 주식 결과 이식 및 알림 조건 검사
+      krPricesResults.forEach(result => {
+        if (result.status === 'fulfilled') {
+          const { key, info } = result.value;
+          const stock = favoriteStocks.find(s => getStockKey(s) === key);
+          if (stock && info) {
+            const alertType = stock.alertType || 'percent';
+            const alertVal = stock.alertValue !== undefined ? stock.alertValue : 3.0;
+            let up = false;
+            let down = false;
+
+            if (alertType === 'percent') {
+              up = info.ratio >= alertVal;
+              down = info.ratio <= -alertVal;
+            } else if (alertType === 'price_above') {
+              up = info.price >= alertVal;
+            } else if (alertType === 'price_below') {
+              down = info.price <= alertVal;
+            }
+
+            nextMap.set(key, { up, down, price: info.price, ratio: info.ratio, currency: info.currency });
+          }
+        }
+      });
 
       favoriteAlertMap = nextMap;
       const anyUp = Array.from(nextMap.values()).some((v) => v.up);

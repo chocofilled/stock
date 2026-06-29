@@ -1881,14 +1881,15 @@ button:active,
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 16px !important;
-  height: 16px !important;
+  width: 24px !important;
+  height: 24px !important;
   color: inherit !important;
+  image-rendering: pixelated !important;
 }
 
 .theme-item-icon svg {
-  width: 16px !important;
-  height: 16px !important;
+  width: 24px !important;
+  height: 24px !important;
   shape-rendering: crispEdges !important;
 }
 

@@ -891,6 +891,31 @@ body {
   color: var(--text-muted);
 }
 
+.favorites-order-toggle {
+  border-radius: 0 !important;
+  border: 2px solid #ffffff !important;
+  background: #111424 !important;
+  color: #ffffff !important;
+  font-family: 'DungGeunMo', sans-serif !important;
+  font-size: 10px !important;
+  padding: 3px 8px !important;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px #000000 !important;
+  user-select: none !important;
+  transition: none !important;
+}
+
+.favorites-order-toggle:hover {
+  border-color: #bd00ff !important;
+  box-shadow: 3px 3px 0px #bd00ff !important;
+}
+
+.favorites-order-toggle.active {
+  border-color: #00ffcc !important;
+  box-shadow: 3px 3px 0px #00ffcc !important;
+  color: #00ffcc !important;
+}
+
 .favorites-list {
   display: flex;
   flex-direction: column;

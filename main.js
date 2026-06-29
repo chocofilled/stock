@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeBoard = document.getElementById('theme-board');
   const searchSection = document.querySelector('.search-section');
   const exchangeBox = document.getElementById('exchange-box');
+  const favoritesOrderToggleBtn = document.getElementById('favorites-order-toggle');
 
   const chartContainer = document.getElementById('stock-chart-container');
   const chartPeriodVal = document.getElementById('chart-period-val');
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let favoritePanelOpen = false;
   let favoriteAlertMap = new Map();
   let openedFromFavorites = false;
+  let favoritesOrderEditing = false;
 
   const RETRO_THEMES = [
     { id: 'semicon', name: '반도체', stocks: ['005930', '000660', '028260', '403870', '007660'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="10" height="10" fill="#3a3d52"/><rect x="5" y="5" width="6" height="6" fill="#1b1e2c"/><rect x="7" y="7" width="2" height="2" fill="#00ffcc"/><rect x="5" y="1" width="2" height="2" fill="#ffe600"/><rect x="9" y="1" width="2" height="2" fill="#ffe600"/><rect x="5" y="13" width="2" height="2" fill="#ffe600"/><rect x="9" y="13" width="2" height="2" fill="#ffe600"/><rect x="1" y="5" width="2" height="2" fill="#ffe600"/><rect x="1" y="9" width="2" height="2" fill="#ffe600"/><rect x="13" y="5" width="2" height="2" fill="#ffe600"/><rect x="13" y="9" width="2" height="2" fill="#ffe600"/></svg>` },
@@ -379,7 +381,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (open) {
       renderFavoritePanel();
     } else {
-      // 즐겨찾기 패널 닫힐 때 → 즐겨찾기에서 열었던 상세정보도 함께 닫기
+      // 즐겨찾기 패널 닫힐 때 → 순서 변경 모드 초기화
+      favoritesOrderEditing = false;
+      if (favoritesOrderToggleBtn) {
+        favoritesOrderToggleBtn.classList.remove('active');
+        favoritesOrderToggleBtn.textContent = '순서 변경';
+      }
+      // 즐겨찾기에서 열었던 상세정보도 함께 닫기
       if (openedFromFavorites) {
         openedFromFavorites = false;
         infoPanel.classList.add('hidden');
@@ -442,16 +450,21 @@ document.addEventListener('DOMContentLoaded', () => {
       row.className = 'favorite-item';
       if (currentStock && getStockKey(currentStock) === getStockKey(stock)) row.classList.add('active');
 
-      row.draggable = true;
+      row.draggable = favoritesOrderEditing;
       row.dataset.originalIndex = index;
 
       row.addEventListener('dragstart', (e) => {
+        if (!favoritesOrderEditing) {
+          e.preventDefault();
+          return;
+        }
         row.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', index);
       });
 
       row.addEventListener('dragend', () => {
+        if (!favoritesOrderEditing) return;
         row.classList.remove('dragging');
         const currentItems = Array.from(favoriteList.querySelectorAll('.favorite-item'));
         const newFavoriteStocks = [];
@@ -465,6 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       row.addEventListener('dragover', (e) => {
+        if (!favoritesOrderEditing) return;
         e.preventDefault();
         const draggingEl = favoriteList.querySelector('.dragging');
         if (!draggingEl || draggingEl === row) return;
@@ -483,6 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let isTouchDragging = false;
 
       row.addEventListener('touchstart', (e) => {
+        if (!favoritesOrderEditing) return;
         const touch = e.touches[0];
         touchStartY = touch.clientY;
         isTouchDragging = false;
@@ -490,6 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }, { passive: true });
 
       row.addEventListener('touchmove', (e) => {
+        if (!favoritesOrderEditing) return;
         const touch = e.touches[0];
         const deltaY = Math.abs(touch.clientY - touchStartY);
 
@@ -522,6 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }, { passive: false });
 
       row.addEventListener('touchend', (e) => {
+        if (!favoritesOrderEditing) return;
         row.classList.remove('dragging-pending');
         
         if (isTouchDragging) {
@@ -610,6 +627,11 @@ document.addEventListener('DOMContentLoaded', () => {
       row.appendChild(dot);
       row.addEventListener('click', (e) => {
         e.stopPropagation(); // document click 핸들러가 패널을 닫지 않도록 이벤트 버블링 차단
+        if (favoritesOrderEditing) {
+          // 순서 변경 모드일 때는 클릭으로 인한 종목 진입을 차단합니다.
+          e.preventDefault();
+          return;
+        }
         // 드래그가 끝났을 때의 클릭 이벤트 발생을 방지하거나 구분
         // dragend 직후 click이 바로 발생할 수 있으므로, 드래그 상태가 해제된 지 얼마 안 되었다면 동작을 막아야 할 수도 있음.
         // 다만 row.classList.contains('dragging')는 이미 dragend에서 지워지므로 다른 방법이 필요할 수 있음.
@@ -1664,6 +1686,15 @@ document.addEventListener('DOMContentLoaded', () => {
         favoritesRefreshBtn.blur();
         favoritesRefreshBtn.classList.remove('completed');
       }, 350);
+    });
+  }
+
+  if (favoritesOrderToggleBtn) {
+    favoritesOrderToggleBtn.addEventListener('click', () => {
+      favoritesOrderEditing = !favoritesOrderEditing;
+      favoritesOrderToggleBtn.classList.toggle('active', favoritesOrderEditing);
+      favoritesOrderToggleBtn.textContent = favoritesOrderEditing ? '완료' : '순서 변경';
+      renderFavoritePanel();
     });
   }
 

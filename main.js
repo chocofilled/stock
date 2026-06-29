@@ -1476,6 +1476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 시각적 피드백 효과를 위해 최소 600ms 회전 애니메이션 유지
         setTimeout(() => {
           favoritesRefreshBtn.classList.remove('spinning');
+          favoritesRefreshBtn.blur();
         }, 600);
       }
     });

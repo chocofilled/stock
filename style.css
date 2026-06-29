@@ -1709,8 +1709,8 @@ button:active,
 }
 
 .favorites-panel-toggle {
-  width: 56px !important;
-  height: 56px !important;
+  width: 42px !important;
+  height: 42px !important;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -1720,9 +1720,9 @@ button:active,
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  transform: translateX(-5px) !important;
+  width: 16px;
+  height: 16px;
+  transform: none !important;
 }
 
 .favorites-panel-toggle-dot {

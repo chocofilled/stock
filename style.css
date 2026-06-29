@@ -1547,12 +1547,12 @@ button:active,
   box-shadow: 2px 2px 0px #000000 !important;
 }
 
-/* 가격 알림 버튼 활성 상태 */
+/* 가격 알림 버튼 활성 상태 (배경 검정, 테두리 노랑) */
 .stock-alert-toggle.active {
-  background: #bd00ff !important;
-  border-color: #bd00ff !important;
-  color: #ffffff !important;
-  box-shadow: 2px 2px 0px #000000 !important;
+  background: #000000 !important;
+  border-color: #ffe600 !important;
+  color: #ffe600 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
 }
 
 .stock-alert-toggle-bell {
@@ -1738,6 +1738,8 @@ button:active,
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
+  background: #000000 !important; /* 기본 배경 검정 */
+  border-color: #ffffff !important;
 }
 
 /* 8-bit SVG 아이콘 색상 및 정렬 규칙 */
@@ -1778,13 +1780,13 @@ button:active,
 
 /* 3. 가격 알림 종 아이콘 상태 연동 */
 .stock-alert-toggle .pixel-bell-svg {
-  color: #c5c6c7 !important;
+  color: #ffe600 !important; /* 기본 상태 노란색 */
 }
 
 .stock-alert-toggle.active .pixel-bell-svg {
-  color: #ffffff !important;
+  color: #ffe600 !important; /* 활성 상태 노란색 */
 }
 
 .stock-alert-toggle:hover .pixel-bell-svg {
-  color: #000000 !important;
+  color: #000000 !important; /* 호버 시 블랙 */
 }

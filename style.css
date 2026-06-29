@@ -1691,7 +1691,8 @@ button:active,
 }
 
 /* 별 아이콘 및 알림 점 크기 최적화 (가독성 및 깨짐방지) */
-.favorite-toggle {
+.favorite-toggle,
+.favorites-refresh {
   width: 42px !important;
   height: 42px !important;
   display: inline-flex !important;

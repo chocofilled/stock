@@ -939,11 +939,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const isUp = prices[prices.length - 1] >= prices[0];
     
-    // 8비트 레트로 색상 연동 (상승: 네온 시안, 하락: 레트로 핑크)
-    const strokeColor = isUp ? '#00ffcc' : '#ff0055';
+    // 8비트 레트로 색상 연동 (상승: 빨간색, 하락: 파란색 — 국내 주식 관례)
+    const strokeColor = isUp ? '#ff0055' : '#00aaff';
 
     // 1. 차트 하단 영역 투박한 픽셀 블록 느낌의 채우기
-    ctx.fillStyle = isUp ? 'rgba(0, 255, 204, 0.08)' : 'rgba(255, 0, 85, 0.08)';
+    ctx.fillStyle = isUp ? 'rgba(255, 0, 85, 0.08)' : 'rgba(0, 170, 255, 0.08)';
     ctx.beginPath();
     ctx.moveTo(Math.round(getX(0)), height);
     for (let i = 0; i < points.length; i++) {

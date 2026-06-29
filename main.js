@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadThemeBoard() {
     if (!themeBoard) return;
     try {
-      const res = await fetch('/api/stock/api/sectors?page=1&pageSize=80');
+      const res = await fetch('/api/naver-sectors/sectors?page=1&pageSize=80');
       if (!res.ok) throw new Error('Failed to fetch sectors');
       const sectors = await res.json();
 

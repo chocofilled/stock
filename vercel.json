@@ -19,6 +19,10 @@
     {
       "source": "/api/naver-realtime/:path*",
       "destination": "https://polling.finance.naver.com/:path*"
+    },
+    {
+      "source": "/api/naver-sectors/:path*",
+      "destination": "https://m.stock.naver.com/api/:path*"
     }
   ]
 }

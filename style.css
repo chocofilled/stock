@@ -1823,8 +1823,8 @@ button:active,
    ========================================================================== */
 .theme-board {
   display: flex !important;
-  overflow-x: auto !important;
-  white-space: nowrap !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
   gap: 8px !important;
   padding: 12px 6px !important;
   margin-top: 10px !important;
@@ -1832,11 +1832,6 @@ button:active,
   border: 2px solid #ffffff !important;
   background: #111424 !important;
   box-shadow: 3px 3px 0px #000000 !important;
-  scrollbar-width: none !important; /* Firefox 스크롤바 숨김 */
-}
-
-.theme-board::-webkit-scrollbar {
-  display: none !important; /* Chrome/Safari 스크롤바 숨김 */
 }
 
 .theme-item {

@@ -1812,3 +1812,10 @@ button:active,
 .badge-dot {
   border-radius: 0 !important;
 }
+
+/* 새로고침 진행 중이거나 완료 직후에는 어떤 포커스/호버가 남아있어도 무조건 흰색 테두리로 강제 환원 */
+.favorites-refresh.spinning,
+.favorites-refresh.completed {
+  border-color: #ffffff !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+}

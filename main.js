@@ -1483,14 +1483,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // 마우스가 새로고침 버튼을 벗어나면 완료 상태 해제하여 다음 호버 시 다시 보라색이 되도록 조절
+    // 마우스가 새로고침 버튼을 벗어나거나 포커스가 완전히 해제(blur)될 때 완료 상태 해제
     favoritesRefreshBtn.addEventListener('mouseleave', () => {
+      favoritesRefreshBtn.classList.remove('completed');
+    });
+    favoritesRefreshBtn.addEventListener('blur', () => {
       favoritesRefreshBtn.classList.remove('completed');
     });
     favoritesRefreshBtn.addEventListener('touchend', () => {
       setTimeout(() => {
+        favoritesRefreshBtn.blur();
         favoritesRefreshBtn.classList.remove('completed');
-      }, 500);
+      }, 350);
     });
   }
 

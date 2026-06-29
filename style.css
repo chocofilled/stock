@@ -1685,12 +1685,17 @@ button:active,
 .favorite-toggle {
   width: 42px !important;
   height: 42px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .favorite-toggle-star {
-  font-size: 24px !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif !important;
-  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .favorite-toggle-dot {
@@ -1703,13 +1708,18 @@ button:active,
 .favorites-panel-toggle {
   width: 56px !important;
   height: 56px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .favorites-panel-toggle-star {
-  font-size: 30px !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif !important;
-  transform: translateX(-7px) translateY(-1px) !important;
-  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  transform: translateX(-5px) !important;
 }
 
 .favorites-panel-toggle-dot {
@@ -1725,5 +1735,56 @@ button:active,
 .stock-alert-toggle {
   width: 42px !important; /* 즐겨찾기 버튼과 높이 매칭 */
   height: 42px !important;
-  font-size: 18px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 8-bit SVG 아이콘 색상 및 정렬 규칙 */
+.pixel-star-svg, .pixel-bell-svg, .favorites-refresh-svg {
+  display: inline-block;
+  vertical-align: middle;
+  image-rendering: pixelated;
+}
+
+/* 1. 새로고침 아이콘 색상 */
+.favorites-refresh-svg {
+  color: #ffe600 !important;
+}
+.favorites-refresh:hover .favorites-refresh-svg {
+  color: #000000 !important;
+}
+
+/* 2. 즐겨찾기 별 아이콘 상태 연동 */
+.favorite-toggle .pixel-star-svg {
+  color: #555566 !important; /* 꺼져 있을 때는 어둡게 */
+}
+
+.favorite-toggle.active .pixel-star-svg {
+  color: #ffe600 !important; /* 켜졌을 때는 오락실 골드 옐로우 */
+}
+
+.favorite-toggle:hover .pixel-star-svg {
+  color: #000000 !important; /* 호버 시 글자 반전에 맞춰 검정 */
+}
+
+.favorites-panel-toggle-star .pixel-star-svg {
+  color: #ffe600 !important; /* 패널 버튼 속 별은 항상 노란색 */
+}
+
+.favorites-panel-toggle:hover .pixel-star-svg {
+  color: #000000 !important;
+}
+
+/* 3. 가격 알림 종 아이콘 상태 연동 */
+.stock-alert-toggle .pixel-bell-svg {
+  color: #c5c6c7 !important;
+}
+
+.stock-alert-toggle.active .pixel-bell-svg {
+  color: #ffffff !important;
+}
+
+.stock-alert-toggle:hover .pixel-bell-svg {
+  color: #000000 !important;
 }

@@ -218,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!favoriteToggle || !favoriteToggleStar) return;
     const active = currentStock ? isFavorite(currentStock) : false;
     favoriteToggle.classList.toggle('active', active);
-    favoriteToggleStar.textContent = active ? '★' : '☆';
     favoriteToggle.setAttribute('aria-label', active ? '즐겨찾기 제거' : '즐겨찾기 추가');
 
     if (alertToggle) {

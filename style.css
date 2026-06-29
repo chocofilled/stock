@@ -1837,15 +1837,15 @@ button:active,
 .theme-item {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 6px !important;
-  padding: 6px 10px !important;
+  justify-content: center !important;
+  width: 42px !important;
+  height: 42px !important;
+  padding: 0 !important;
   border: 2px solid #ffffff !important;
   background: #1b1e2c !important;
   box-shadow: 3px 3px 0px #000000 !important;
-  cursor: default;
+  cursor: pointer;
   user-select: none;
-  font-family: 'Press Start 2P', 'DungGeunMo', sans-serif !important;
-  font-size: 10px !important;
   flex-shrink: 0 !important;
   transition: all 0.2s ease !important;
 }
@@ -1890,26 +1890,4 @@ button:active,
   shape-rendering: crispEdges !important;
 }
 
-.theme-item-name {
-  color: #ffffff !important;
-  font-family: 'DungGeunMo', sans-serif !important;
-  font-size: 12px !important;
-}
 
-.theme-item-rate {
-  font-family: 'Press Start 2P', 'Silkscreen', sans-serif !important;
-  font-size: 9px !important;
-  margin-left: 2px !important;
-}
-
-.theme-item-rate.up {
-  color: #00ffcc !important; /* 상승시 시안색 활성화 */
-}
-
-.theme-item-rate.down {
-  color: #ff0055 !important; /* 하락시 붉은색 */
-}
-
-.theme-item-rate.flat {
-  color: #888899 !important;
-}

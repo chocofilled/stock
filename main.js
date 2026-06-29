@@ -55,73 +55,81 @@ document.addEventListener('DOMContentLoaded', () => {
   let openedFromFavorites = false;
 
   const RETRO_THEMES = [
-    { id: 'semicon', name: '반도체', wics: ['반도체와반도체장비'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="1" width="12" height="12" fill="#555566"/><rect x="4" y="3" width="8" height="6" fill="#00ffcc"/><rect x="3" y="13" width="1" height="2" fill="#ffe600"/><rect x="5" y="13" width="1" height="2" fill="#ffe600"/><rect x="7" y="13" width="1" height="2" fill="#ffe600"/><rect x="9" y="13" width="1" height="2" fill="#ffe600"/><rect x="11" y="13" width="1" height="2" fill="#ffe600"/><rect x="12" y="13" width="1" height="2" fill="#ffe600"/></svg>` },
-    { id: 'ai', name: 'AI/클라우드', wics: ['소프트웨어', 'IT서비스'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="4" y="13" width="8" height="2" fill="#555566"/><rect x="6" y="11" width="4" height="2" fill="#777788"/><rect x="5" y="2" width="6" height="1" fill="#bd00ff"/><rect x="4" y="3" width="8" height="8" fill="#bd00ff"/><rect x="3" y="5" width="10" height="4" fill="#bd00ff"/><rect x="5" y="4" width="2" height="2" fill="#ffffff"/><rect x="9" y="8" width="1" height="1" fill="#00ffcc"/></svg>` },
-    { id: 'game', name: '게임/엔터', wics: ['게임엔터테인먼트', '방송과엔터테인먼트'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="3" height="3" fill="#ff0055"/><rect x="8" y="4" width="1" height="5" fill="#cccccc"/><rect x="3" y="9" width="11" height="5" fill="#1f2833"/><rect x="5" y="11" width="2" height="1" fill="#ffe600"/><rect x="10" y="11" width="2" height="1" fill="#00ffcc"/></svg>` },
-    { id: 'finance', name: '금융/은행', wics: ['은행', '증권', '카드', '손해보험', '생명보험'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="1" y="4" width="14" height="10" fill="#aa6633"/><rect x="3" y="2" width="10" height="2" fill="#aa6633"/><rect x="2" y="3" width="12" height="1" fill="#ffe600"/><rect x="4" y="6" width="8" height="2" fill="#ffe600"/><rect x="7" y="8" width="2" height="3" fill="#ffffff"/></svg>` },
-    { id: 'bio', name: '제약/바이오', wics: ['제약', '바이오의약품', '의료기기'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="2" height="2" fill="#aa6633"/><rect x="6" y="3" width="4" height="3" fill="#ffffff" opacity="0.7"/><rect x="4" y="6" width="8" height="8" fill="#ff0055"/><rect x="6" y="8" width="1" height="1" fill="#ffffff"/><rect x="9" y="10" width="1" height="1" fill="#ffffff"/><rect x="7" y="11" width="1" height="1" fill="#ffffff"/></svg>` },
-    { id: 'car', name: '자동차', wics: ['자동차', '자동차부품'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="6" width="12" height="6" fill="#ff0055"/><rect x="4" y="12" width="2" height="2" fill="#111111"/><rect x="10" y="12" width="2" height="2" fill="#111111"/><rect x="3" y="4" width="8" height="2" fill="#00ffcc"/><rect x="13" y="6" width="2" height="2" fill="#ffffff"/></svg>` },
-    { id: 'energy', name: '에너지', wics: ['전기유틸리티', '가스유틸리티', '오일및가스'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="8" y="1" width="3" height="2" fill="#ffe600"/><rect x="7" y="3" width="3" height="2" fill="#ffe600"/><rect x="6" y="5" width="4" height="2" fill="#ffe600"/><rect x="4" y="7" width="8" height="2" fill="#ffe600"/><rect x="5" y="9" width="4" height="2" fill="#ffe600"/><rect x="4" y="11" width="3" height="2" fill="#ffe600"/><rect x="3" y="13" width="2" height="2" fill="#ffe600"/></svg>` },
-    { id: 'battery', name: '2차전지', wics: ['전기제품', '화학'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="2" height="1" fill="#777788"/><rect x="4" y="2" width="8" height="12" fill="#1b1e2c" stroke="#ffffff" stroke-width="1"/><rect x="5" y="4" width="6" height="8" fill="#00ffcc"/><rect x="7" y="6" width="2" height="4" fill="#ffffff"/></svg>` },
-    { id: 'robot', name: '로보틱스', wics: ['기계'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="8" width="4" height="6" fill="#777788"/><rect x="6" y="6" width="4" height="3" fill="#9999aa"/><rect x="10" y="4" width="4" height="3" fill="#555566"/><rect x="7" y="12" width="6" height="2" fill="#ffe600"/></svg>` },
-    { id: 'food', name: 'K-푸드', wics: ['식품', '식품과기본식료품소매'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="3" y="7" width="10" height="6" fill="#ff9900"/><rect x="2" y="6" width="12" height="1" fill="#ffffff"/><rect x="5" y="3" width="1" height="3" fill="#ffe600"/><rect x="9" y="3" width="1" height="3" fill="#ffe600"/><rect x="5" y="9" width="6" height="2" fill="#ff0055"/></svg>` },
-    { id: 'beauty', name: '화장품', wics: ['화장품', '개인용품'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="6" y="8" width="4" height="7" fill="#333333"/><rect x="7" y="3" width="2" height="5" fill="#ff0055"/><rect x="5" y="8" width="6" height="1" fill="#ffe600"/></svg>` },
-    { id: 'defense', name: '방산', wics: ['우주항공과국방'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="12" height="2" fill="#777788"/><rect x="3" y="4" width="10" height="2" fill="#ff0055"/><rect x="4" y="6" width="8" height="2" fill="#ff0055"/><rect x="5" y="8" width="6" height="2" fill="#ff0055"/><rect x="6" y="10" width="4" height="2" fill="#ff0055"/><rect x="7" y="12" width="2" height="2" fill="#777788"/><rect x="7" y="3" width="2" height="8" fill="#ffe600"/><rect x="4" y="6" width="8" height="2" fill="#ffe600"/></svg>` },
-    { id: 'ship', name: '조선/중공업', wics: ['조선', '건설'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="0" y="14" width="16" height="1" fill="#00aaff"/><rect x="2" y="11" width="12" height="3" fill="#777788"/><rect x="1" y="12" width="14" height="2" fill="#777788"/><rect x="6" y="7" width="4" height="4" fill="#9999aa"/><rect x="7" y="6" width="2" height="1" fill="#555566"/><rect x="3" y="10" width="2" height="1" fill="#333344"/><rect x="11" y="10" width="2" height="1" fill="#333344"/></svg>` }
+    { id: 'semicon', name: '반도체', stocks: ['005930', '000660', '028260'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="1" width="12" height="12" fill="#555566"/><rect x="4" y="3" width="8" height="6" fill="#00ffcc"/><rect x="3" y="13" width="1" height="2" fill="#ffe600"/><rect x="5" y="13" width="1" height="2" fill="#ffe600"/><rect x="7" y="13" width="1" height="2" fill="#ffe600"/><rect x="9" y="13" width="1" height="2" fill="#ffe600"/><rect x="11" y="13" width="1" height="2" fill="#ffe600"/><rect x="12" y="13" width="1" height="2" fill="#ffe600"/></svg>` },
+    { id: 'ai', name: 'AI/클라우드', stocks: ['035420', '035720', '292150'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="4" y="13" width="8" height="2" fill="#555566"/><rect x="6" y="11" width="4" height="2" fill="#777788"/><rect x="5" y="2" width="6" height="1" fill="#bd00ff"/><rect x="4" y="3" width="8" height="8" fill="#bd00ff"/><rect x="3" y="5" width="10" height="4" fill="#bd00ff"/><rect x="5" y="4" width="2" height="2" fill="#ffffff"/><rect x="9" y="8" width="1" height="1" fill="#00ffcc"/></svg>` },
+    { id: 'game', name: '게임/엔터', stocks: ['259960', '251270', '036570'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="3" height="3" fill="#ff0055"/><rect x="8" y="4" width="1" height="5" fill="#cccccc"/><rect x="3" y="9" width="11" height="5" fill="#1f2833"/><rect x="5" y="11" width="2" height="1" fill="#ffe600"/><rect x="10" y="11" width="2" height="1" fill="#00ffcc"/></svg>` },
+    { id: 'finance', name: '금융/은행', stocks: ['105560', '055550', '138040'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="1" y="4" width="14" height="10" fill="#aa6633"/><rect x="3" y="2" width="10" height="2" fill="#aa6633"/><rect x="2" y="3" width="12" height="1" fill="#ffe600"/><rect x="4" y="6" width="8" height="2" fill="#ffe600"/><rect x="7" y="8" width="2" height="3" fill="#ffffff"/></svg>` },
+    { id: 'bio', name: '제약/바이오', stocks: ['207940', '068270', '000100'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="2" height="2" fill="#aa6633"/><rect x="6" y="3" width="4" height="3" fill="#ffffff" opacity="0.7"/><rect x="4" y="6" width="8" height="8" fill="#ff0055"/><rect x="6" y="8" width="1" height="1" fill="#ffffff"/><rect x="9" y="10" width="1" height="1" fill="#ffffff"/><rect x="7" y="11" width="1" height="1" fill="#ffffff"/></svg>` },
+    { id: 'car', name: '자동차', stocks: ['005380', '000270', '012330'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="6" width="12" height="6" fill="#ff0055"/><rect x="4" y="12" width="2" height="2" fill="#111111"/><rect x="10" y="12" width="2" height="2" fill="#111111"/><rect x="3" y="4" width="8" height="2" fill="#00ffcc"/><rect x="13" y="6" width="2" height="2" fill="#ffffff"/></svg>` },
+    { id: 'energy', name: '에너지', stocks: ['034020', '009830', '015760'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="8" y="1" width="3" height="2" fill="#ffe600"/><rect x="7" y="3" width="3" height="2" fill="#ffe600"/><rect x="6" y="5" width="4" height="2" fill="#ffe600"/><rect x="4" y="7" width="8" height="2" fill="#ffe600"/><rect x="5" y="9" width="4" height="2" fill="#ffe600"/><rect x="4" y="11" width="3" height="2" fill="#ffe600"/><rect x="3" y="13" width="2" height="2" fill="#ffe600"/></svg>` },
+    { id: 'battery', name: '2차전지', stocks: ['373220', '086520', '003670'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="2" height="1" fill="#777788"/><rect x="4" y="2" width="8" height="12" fill="#1b1e2c" stroke="#ffffff" stroke-width="1"/><rect x="5" y="4" width="6" height="8" fill="#00ffcc"/><rect x="7" y="6" width="2" height="4" fill="#ffffff"/></svg>` },
+    { id: 'robot', name: '로보틱스', stocks: ['454910', '277810', '348210'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="8" width="4" height="6" fill="#777788"/><rect x="6" y="6" width="4" height="3" fill="#9999aa"/><rect x="10" y="4" width="4" height="3" fill="#555566"/><rect x="7" y="12" width="6" height="2" fill="#ffe600"/></svg>` },
+    { id: 'food', name: 'K-푸드', stocks: ['003230', '004370', '001680'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="3" y="7" width="10" height="6" fill="#ff9900"/><rect x="2" y="6" width="12" height="1" fill="#ffffff"/><rect x="5" y="3" width="1" height="3" fill="#ffe600"/><rect x="9" y="3" width="1" height="3" fill="#ffe600"/><rect x="5" y="9" width="6" height="2" fill="#ff0055"/></svg>` },
+    { id: 'beauty', name: '화장품', stocks: ['090430', '192820', '161890'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="6" y="8" width="4" height="7" fill="#333333"/><rect x="7" y="3" width="2" height="5" fill="#ff0055"/><rect x="5" y="8" width="6" height="1" fill="#ffe600"/></svg>` },
+    { id: 'defense', name: '방산', stocks: ['012450', '079550', '064350'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="12" height="2" fill="#777788"/><rect x="3" y="4" width="10" height="2" fill="#ff0055"/><rect x="4" y="6" width="8" height="2" fill="#ff0055"/><rect x="5" y="8" width="6" height="2" fill="#ff0055"/><rect x="6" y="10" width="4" height="2" fill="#ff0055"/><rect x="7" y="12" width="2" height="2" fill="#777788"/><rect x="7" y="3" width="2" height="8" fill="#ffe600"/><rect x="4" y="6" width="8" height="2" fill="#ffe600"/></svg>` },
+    { id: 'ship', name: '조선/중공업', stocks: ['329180', '010140', '042660'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="0" y="14" width="16" height="1" fill="#00aaff"/><rect x="2" y="11" width="12" height="3" fill="#777788"/><rect x="1" y="12" width="14" height="2" fill="#777788"/><rect x="6" y="7" width="4" height="4" fill="#9999aa"/><rect x="7" y="6" width="2" height="1" fill="#555566"/><rect x="3" y="10" width="2" height="1" fill="#333344"/><rect x="11" y="10" width="2" height="1" fill="#333344"/></svg>` }
   ];
 
   async function loadThemeBoard() {
     if (!themeBoard) return;
-    try {
-      const res = await fetch('/api/naver-sectors/sectors?page=1&pageSize=80');
-      if (!res.ok) throw new Error('Failed to fetch sectors');
-      const sectors = await res.json();
-
+    
+    // 1. 초기 로딩 시 흑백 구조 선마운트 (툴팁 초기화)
+    if (themeBoard.children.length === 0) {
       themeBoard.innerHTML = '';
-      
       RETRO_THEMES.forEach((theme) => {
-        const matched = sectors.filter((sec) => theme.wics.includes(sec.sectorName));
-        
-        let avgChange = 0;
-        if (matched.length > 0) {
-          const sum = matched.reduce((acc, curr) => acc + (curr.changeRate || 0), 0);
-          avgChange = sum / matched.length;
-        }
-
         const item = document.createElement('div');
-        const isUp = avgChange > 0;
-        
-        // 상승 시 컬러(active), 하락/보합 시 흑백(gray)
-        item.className = `theme-item ${isUp ? 'active' : 'gray'}`;
-        item.title = `${theme.name} (평균 ${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)`;
+        item.className = 'theme-item gray';
+        item.dataset.themeId = theme.id;
+        item.title = `${theme.name} (로딩 중...)`;
 
         const iconContainer = document.createElement('span');
         iconContainer.className = 'theme-item-icon';
         iconContainer.innerHTML = theme.icon;
 
-        const nameLabel = document.createElement('span');
-        nameLabel.className = 'theme-item-name';
-        nameLabel.textContent = theme.name;
-
-        const rateLabel = document.createElement('span');
-        rateLabel.className = `theme-item-rate ${isUp ? 'up' : avgChange < 0 ? 'down' : 'flat'}`;
-        rateLabel.textContent = `${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(1)}%`;
-
         item.appendChild(iconContainer);
-        item.appendChild(nameLabel);
-        item.appendChild(rateLabel);
-        
         themeBoard.appendChild(item);
+      });
+    }
+
+    try {
+      // 2. 대장주 3선 시세 변동률 비동기 계산
+      const results = await Promise.allSettled(
+        RETRO_THEMES.map(async (theme) => {
+          const prices = await Promise.allSettled(
+            theme.stocks.map(async (code) => {
+              const res = await fetchKoreanRealtimePrice({ code });
+              return res.ratio || 0;
+            })
+          );
+
+          let sum = 0;
+          let count = 0;
+          prices.forEach((p) => {
+            if (p.status === 'fulfilled') {
+              sum += p.value;
+              count++;
+            }
+          });
+
+          const avgChange = count > 0 ? sum / count : 0;
+          return { id: theme.id, name: theme.name, avgChange };
+        })
+      );
+
+      // 3. 연산 완료된 테마별 카드 상태 갱신 (상승은 컬러 active, 하락/보합은 흑백 gray)
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          const { id, name, avgChange } = result.value;
+          const item = themeBoard.querySelector(`[data-theme-id="${id}"]`);
+          if (item) {
+            const isUp = avgChange > 0;
+            item.className = `theme-item ${isUp ? 'active' : 'gray'}`;
+            item.title = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)`;
+          }
+        }
       });
     } catch (e) {
-      console.warn('Failed to load theme board data:', e);
-      themeBoard.innerHTML = '';
-      RETRO_THEMES.forEach((theme) => {
-        const item = document.createElement('div');
-        item.className = 'theme-item gray';
-        item.innerHTML = `${theme.icon}<span class="theme-item-name">${theme.name}</span><span class="theme-item-rate flat">0.0%</span>`;
-        themeBoard.appendChild(item);
-      });
+      console.warn('Failed to load theme board metrics:', e);
     }
   }
 

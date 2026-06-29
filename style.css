@@ -1525,7 +1525,7 @@ button,
 
 button:hover,
 .favorite-toggle:hover,
-.favorites-refresh:hover:not(.spinning),
+.favorites-refresh:hover:not(.spinning):not(.completed),
 .favorites-panel-toggle:hover,
 .stock-panel-close:hover,
 .alert-save-btn:hover,

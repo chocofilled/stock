@@ -1468,6 +1468,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (favoritesRefreshBtn.classList.contains('spinning')) return;
 
       favoritesRefreshBtn.classList.add('spinning');
+      favoritesRefreshBtn.classList.remove('completed'); // 이전 완료 상태 제거
       try {
         await refreshFavoriteAlerts();
       } catch (e) {
@@ -1476,9 +1477,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // 시각적 피드백 효과를 위해 최소 600ms 회전 애니메이션 유지
         setTimeout(() => {
           favoritesRefreshBtn.classList.remove('spinning');
+          favoritesRefreshBtn.classList.add('completed'); // 완료 상태 추가
           favoritesRefreshBtn.blur();
         }, 600);
       }
+    });
+
+    // 마우스가 새로고침 버튼을 벗어나면 완료 상태 해제하여 다음 호버 시 다시 보라색이 되도록 조절
+    favoritesRefreshBtn.addEventListener('mouseleave', () => {
+      favoritesRefreshBtn.classList.remove('completed');
+    });
+    favoritesRefreshBtn.addEventListener('touchend', () => {
+      setTimeout(() => {
+        favoritesRefreshBtn.classList.remove('completed');
+      }, 500);
     });
   }
 

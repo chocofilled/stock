@@ -408,7 +408,7 @@ body {
   border-radius: 50%;
   background: transparent;
   flex-shrink: 0;
-  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .favorites-panel-toggle-dot--up {
@@ -422,13 +422,13 @@ body {
 .favorites-panel-toggle-dot--up.visible {
   background: hsl(0, 90%, 60%);
   border-color: hsl(0, 90%, 60%);
-  box-shadow: 0 0 4px hsla(0, 90%, 60%, 0.6);
+  box-shadow: none !important; /* 빛나는 glow 효과 삭제 */
 }
 
 .favorites-panel-toggle-dot--down.visible {
   background: hsl(210, 90%, 60%);
   border-color: hsl(210, 90%, 60%);
-  box-shadow: 0 0 4px hsla(210, 90%, 60%, 0.6);
+  box-shadow: none !important; /* 빛나는 glow 효과 삭제 */
 }
 
 .favorites-panel-toggle-star {
@@ -1523,19 +1523,32 @@ button,
   transition: none !important;
 }
 
-button:hover,
-.favorite-toggle:hover,
-.favorites-refresh:hover,
-.favorites-panel-toggle:hover,
-.stock-panel-close:hover,
-.alert-save-btn:hover,
-.stock-alert-toggle:hover {
-  /* 배경은 변하지 않고 테두리와 그림자만 보라색으로 변형 */
-  border-color: #bd00ff !important;
-  box-shadow: 3px 3px 0px #bd00ff !important;
-  transform: none !important;
+/* 마우스가 있는 포인팅 환경(데스크톱)에서만 호버 보라색 적용 */
+@media (hover: hover) {
+  button:hover,
+  .favorite-toggle:hover,
+  .favorites-refresh:hover:not(.spinning),
+  .favorites-panel-toggle:hover,
+  .stock-panel-close:hover,
+  .alert-save-btn:hover,
+  .stock-alert-toggle:hover {
+    border-color: #bd00ff !important;
+    box-shadow: 3px 3px 0px #bd00ff !important;
+    transform: none !important;
+  }
+
+  .dropdown-item:hover, 
+  .dropdown-item.active,
+  .favorite-item:hover,
+  .favorite-item.active,
+  .news-list-item:hover {
+    background: #1b1e2c !important;
+    border-color: #bd00ff !important;
+    box-shadow: 3px 3px 0px #bd00ff !important;
+  }
 }
 
+/* 탭 클릭 피드백 (모바일/데스크톱 공용 터치 피드백) */
 button:active, 
 .favorite-toggle:active,
 .favorites-refresh:active,
@@ -1567,7 +1580,7 @@ button:active,
   border-radius: 0 !important;
   border: 2px solid #ffffff !important;
   background: #000000 !important;
-  color: #00ffcc !important; /* 시안색 롤백으로 보라색과 대비 */
+  color: #00ffcc !important;
   box-shadow: 3px 3px 0px #000000 !important;
   font-family: var(--font-sans) !important;
   font-size: 16px !important;
@@ -1590,17 +1603,6 @@ button:active,
   box-shadow: 3px 3px 0px #000000 !important;
   background: #1b1e2c !important;
   transition: none !important;
-}
-
-.dropdown-item:hover, 
-.dropdown-item.active,
-.favorite-item:hover,
-.favorite-item.active,
-.news-list-item:hover {
-  /* 아이템 호버 시에도 배경은 유지하고 테두리와 그림자만 보라색으로 */
-  background: #1b1e2c !important;
-  border-color: #bd00ff !important;
-  box-shadow: 3px 3px 0px #bd00ff !important;
 }
 
 .dropdown-item:hover .dropdown-item-code,
@@ -1722,7 +1724,7 @@ button:active,
   justify-content: center;
   width: 16px;
   height: 16px;
-  transform: none !important;
+  transform: translateX(-5px) translateY(-1px) !important; /* 겹침 방지 왼쪽 보정 */
 }
 
 .favorites-panel-toggle-dot {

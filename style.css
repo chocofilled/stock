@@ -1,5 +1,10 @@
-@import url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff');
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&display=swap');
+@font-face {
+  font-family: 'DungGeunMo';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
 
 /* Design System & Variables */
 :root {
@@ -1464,7 +1469,7 @@ body {
   background-color: #070913;
 }
 
-/* 글래스모피즘 요소 무력화 및 각진 픽셀 테두리와 플랫 섀도우 적용 */
+/* 글래스모피즘 요소 무력화 및 슬림한 픽셀 테두리와 플랫 섀도우 적용 */
 .card, 
 .stock-info-panel, 
 .favorites-panel, 
@@ -1473,8 +1478,8 @@ body {
 .stock-alert-panel,
 .exchange-box {
   border-radius: 0 !important;
-  border: 4px solid #ffffff !important;
-  box-shadow: 8px 8px 0px #000000 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 5px 5px 0px #000000 !important;
   background: #111424 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -1498,7 +1503,7 @@ body {
   letter-spacing: -0.2px;
 }
 
-/* 픽셀 버튼 디자인 */
+/* 슬림한 픽셀 버튼 디자인 */
 button, 
 .favorite-toggle, 
 .favorites-refresh, 
@@ -1506,15 +1511,15 @@ button,
 .stock-panel-close, 
 .alert-save-btn {
   border-radius: 0 !important;
-  border: 3px solid #ffffff !important;
+  border: 2px solid #ffffff !important;
   background: #1f2833 !important;
   color: #ffffff !important;
-  box-shadow: 4px 4px 0px #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
   font-family: var(--font-sans) !important;
   font-weight: normal !important;
   text-transform: uppercase;
   cursor: pointer;
-  transition: none !important; /* 애니메이션 대신 딱딱 끊기는 느낌 */
+  transition: none !important;
 }
 
 button:hover,
@@ -1534,23 +1539,23 @@ button:active,
 .favorites-panel-toggle:active,
 .stock-panel-close:active,
 .alert-save-btn:active {
-  transform: translate(2px, 2px) !important;
+  transform: translate(1px, 1px) !important;
   box-shadow: 2px 2px 0px #000000 !important;
 }
 
-/* 픽셀 입력창 */
+/* 슬림 픽셀 입력창 */
 .search-container input {
   border-radius: 0 !important;
-  border: 3px solid #ffffff !important;
+  border: 2px solid #ffffff !important;
   background: #000000 !important;
   color: #00ffcc !important;
-  box-shadow: 4px 4px 0px #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
   font-family: var(--font-sans) !important;
 }
 
 .search-container input:focus {
   border-color: #bd00ff !important;
-  box-shadow: 4px 4px 0px #bd00ff !important;
+  box-shadow: 3px 3px 0px #bd00ff !important;
   background: #000000 !important;
 }
 
@@ -1562,7 +1567,7 @@ button:active,
 .alert-input-group {
   border-radius: 0 !important;
   border: 2px solid #ffffff !important;
-  box-shadow: 4px 4px 0px #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
   background: #1b1e2c !important;
   transition: none !important;
 }
@@ -1618,13 +1623,13 @@ button:active,
 
 /* 등락률 텍스트 레트로 컬러 */
 .stock-price-change.up, .favorite-item-ratio.up {
-  color: #ff0055 !important; /* 강렬한 레트로 레드/핑크 */
+  color: #ff0055 !important;
   background: transparent !important;
   border: none !important;
 }
 
 .stock-price-change.down, .favorite-item-ratio.down {
-  color: #00aaff !important; /* 선명한 레트로 블루 */
+  color: #00aaff !important;
   background: transparent !important;
   border: none !important;
 }
@@ -1655,4 +1660,47 @@ button:active,
 .exchange-separator {
   background-color: #ffffff !important;
   width: 2px !important;
+}
+
+/* 별 아이콘 및 알림 점 크기 최적화 (가독성 향상) */
+.favorite-toggle {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.favorite-toggle-star {
+  font-size: 20px !important;
+}
+
+.favorite-toggle-dot {
+  width: 12px !important;
+  height: 12px !important;
+  top: 1px !important;
+  right: 1px !important;
+}
+
+.favorites-panel-toggle {
+  width: 52px !important;
+  height: 52px !important;
+}
+
+.favorites-panel-toggle-star {
+  font-size: 26px !important;
+  transform: translateX(-6px) translateY(-1px) !important;
+}
+
+.favorites-panel-toggle-dot {
+  width: 9px !important;
+  height: 9px !important;
+}
+
+.favorite-item-alert {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.stock-alert-toggle {
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 18px !important;
 }

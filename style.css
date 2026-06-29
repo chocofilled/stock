@@ -1790,3 +1790,11 @@ button:active,
 .stock-alert-toggle:hover .pixel-bell-svg {
   color: #000000 !important; /* 호버 시 블랙 */
 }
+
+/* 알림 점(빨간 점/파란 점/상세 뱃지 도트) 사각형 픽셀화 */
+.favorite-toggle-dot,
+.favorites-panel-toggle-dot,
+.favorite-item-alert,
+.badge-dot {
+  border-radius: 0 !important;
+}

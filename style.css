@@ -1523,29 +1523,35 @@ button,
   transition: none !important;
 }
 
-/* 마우스가 있는 포인팅 환경(데스크톱)에서만 호버 보라색 적용 */
-@media (hover: hover) {
-  button:hover,
-  .favorite-toggle:hover,
-  .favorites-refresh:hover:not(.spinning),
-  .favorites-panel-toggle:hover,
-  .stock-panel-close:hover,
-  .alert-save-btn:hover,
-  .stock-alert-toggle:hover {
-    border-color: #bd00ff !important;
-    box-shadow: 3px 3px 0px #bd00ff !important;
-    transform: none !important;
-  }
+button:hover,
+.favorite-toggle:hover,
+.favorites-refresh:hover:not(.spinning),
+.favorites-panel-toggle:hover,
+.stock-panel-close:hover,
+.alert-save-btn:hover,
+.stock-alert-toggle:hover {
+  /* 배경은 변하지 않고 테두리와 그림자만 보라색으로 변형 */
+  border-color: #bd00ff !important;
+  box-shadow: 3px 3px 0px #bd00ff !important;
+  transform: none !important;
+}
 
-  .dropdown-item:hover, 
-  .dropdown-item.active,
-  .favorite-item:hover,
-  .favorite-item.active,
-  .news-list-item:hover {
-    background: #1b1e2c !important;
-    border-color: #bd00ff !important;
-    box-shadow: 3px 3px 0px #bd00ff !important;
-  }
+.dropdown-item:hover, 
+.dropdown-item.active,
+.favorite-item:hover,
+.favorite-item.active,
+.news-list-item:hover {
+  background: #1b1e2c !important;
+  border-color: #bd00ff !important;
+  box-shadow: 3px 3px 0px #bd00ff !important;
+}
+
+/* 새로고침 포커스 아웃라인 잔류 방지 보강 */
+.favorites-refresh:focus, 
+.favorites-refresh:focus-visible {
+  outline: none !important;
+  border-color: #ffffff !important; /* 포커스 시 보라색으로 변하지 않고 흰색 테두리 유지 */
+  box-shadow: 3px 3px 0px #000000 !important;
 }
 
 /* 탭 클릭 피드백 (모바일/데스크톱 공용 터치 피드백) */

@@ -55,25 +55,25 @@ document.addEventListener('DOMContentLoaded', () => {
   let openedFromFavorites = false;
 
   const RETRO_THEMES = [
-    { id: 'semicon', name: '반도체', stocks: ['005930', '000660', '028260'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="1" width="12" height="12" fill="#555566"/><rect x="4" y="3" width="8" height="6" fill="#00ffcc"/><rect x="3" y="13" width="1" height="2" fill="#ffe600"/><rect x="5" y="13" width="1" height="2" fill="#ffe600"/><rect x="7" y="13" width="1" height="2" fill="#ffe600"/><rect x="9" y="13" width="1" height="2" fill="#ffe600"/><rect x="11" y="13" width="1" height="2" fill="#ffe600"/><rect x="12" y="13" width="1" height="2" fill="#ffe600"/></svg>` },
-    { id: 'ai', name: 'AI/클라우드', stocks: ['035420', '035720', '292150'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="4" y="13" width="8" height="2" fill="#555566"/><rect x="6" y="11" width="4" height="2" fill="#777788"/><rect x="5" y="2" width="6" height="1" fill="#bd00ff"/><rect x="4" y="3" width="8" height="8" fill="#bd00ff"/><rect x="3" y="5" width="10" height="4" fill="#bd00ff"/><rect x="5" y="4" width="2" height="2" fill="#ffffff"/><rect x="9" y="8" width="1" height="1" fill="#00ffcc"/></svg>` },
-    { id: 'game', name: '게임/엔터', stocks: ['259960', '251270', '036570'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="3" height="3" fill="#ff0055"/><rect x="8" y="4" width="1" height="5" fill="#cccccc"/><rect x="3" y="9" width="11" height="5" fill="#1f2833"/><rect x="5" y="11" width="2" height="1" fill="#ffe600"/><rect x="10" y="11" width="2" height="1" fill="#00ffcc"/></svg>` },
-    { id: 'finance', name: '금융/은행', stocks: ['105560', '055550', '138040'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="1" y="4" width="14" height="10" fill="#aa6633"/><rect x="3" y="2" width="10" height="2" fill="#aa6633"/><rect x="2" y="3" width="12" height="1" fill="#ffe600"/><rect x="4" y="6" width="8" height="2" fill="#ffe600"/><rect x="7" y="8" width="2" height="3" fill="#ffffff"/></svg>` },
-    { id: 'bio', name: '제약/바이오', stocks: ['207940', '068270', '000100'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="2" height="2" fill="#aa6633"/><rect x="6" y="3" width="4" height="3" fill="#ffffff" opacity="0.7"/><rect x="4" y="6" width="8" height="8" fill="#ff0055"/><rect x="6" y="8" width="1" height="1" fill="#ffffff"/><rect x="9" y="10" width="1" height="1" fill="#ffffff"/><rect x="7" y="11" width="1" height="1" fill="#ffffff"/></svg>` },
-    { id: 'car', name: '자동차', stocks: ['005380', '000270', '012330'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="6" width="12" height="6" fill="#ff0055"/><rect x="4" y="12" width="2" height="2" fill="#111111"/><rect x="10" y="12" width="2" height="2" fill="#111111"/><rect x="3" y="4" width="8" height="2" fill="#00ffcc"/><rect x="13" y="6" width="2" height="2" fill="#ffffff"/></svg>` },
-    { id: 'energy', name: '에너지', stocks: ['034020', '009830', '015760'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="8" y="1" width="3" height="2" fill="#ffe600"/><rect x="7" y="3" width="3" height="2" fill="#ffe600"/><rect x="6" y="5" width="4" height="2" fill="#ffe600"/><rect x="4" y="7" width="8" height="2" fill="#ffe600"/><rect x="5" y="9" width="4" height="2" fill="#ffe600"/><rect x="4" y="11" width="3" height="2" fill="#ffe600"/><rect x="3" y="13" width="2" height="2" fill="#ffe600"/></svg>` },
-    { id: 'battery', name: '2차전지', stocks: ['373220', '086520', '003670'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="2" height="1" fill="#777788"/><rect x="4" y="2" width="8" height="12" fill="#1b1e2c" stroke="#ffffff" stroke-width="1"/><rect x="5" y="4" width="6" height="8" fill="#00ffcc"/><rect x="7" y="6" width="2" height="4" fill="#ffffff"/></svg>` },
-    { id: 'robot', name: '로보틱스', stocks: ['454910', '277810', '348210'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="8" width="4" height="6" fill="#777788"/><rect x="6" y="6" width="4" height="3" fill="#9999aa"/><rect x="10" y="4" width="4" height="3" fill="#555566"/><rect x="7" y="12" width="6" height="2" fill="#ffe600"/></svg>` },
-    { id: 'food', name: 'K-푸드', stocks: ['003230', '004370', '001680'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="3" y="7" width="10" height="6" fill="#ff9900"/><rect x="2" y="6" width="12" height="1" fill="#ffffff"/><rect x="5" y="3" width="1" height="3" fill="#ffe600"/><rect x="9" y="3" width="1" height="3" fill="#ffe600"/><rect x="5" y="9" width="6" height="2" fill="#ff0055"/></svg>` },
-    { id: 'beauty', name: '화장품', stocks: ['090430', '192820', '161890'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="6" y="8" width="4" height="7" fill="#333333"/><rect x="7" y="3" width="2" height="5" fill="#ff0055"/><rect x="5" y="8" width="6" height="1" fill="#ffe600"/></svg>` },
-    { id: 'defense', name: '방산', stocks: ['012450', '079550', '064350'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="12" height="2" fill="#777788"/><rect x="3" y="4" width="10" height="2" fill="#ff0055"/><rect x="4" y="6" width="8" height="2" fill="#ff0055"/><rect x="5" y="8" width="6" height="2" fill="#ff0055"/><rect x="6" y="10" width="4" height="2" fill="#ff0055"/><rect x="7" y="12" width="2" height="2" fill="#777788"/><rect x="7" y="3" width="2" height="8" fill="#ffe600"/><rect x="4" y="6" width="8" height="2" fill="#ffe600"/></svg>` },
-    { id: 'ship', name: '조선/중공업', stocks: ['329180', '010140', '042660'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="0" y="14" width="16" height="1" fill="#00aaff"/><rect x="2" y="11" width="12" height="3" fill="#777788"/><rect x="1" y="12" width="14" height="2" fill="#777788"/><rect x="6" y="7" width="4" height="4" fill="#9999aa"/><rect x="7" y="6" width="2" height="1" fill="#555566"/><rect x="3" y="10" width="2" height="1" fill="#333344"/><rect x="11" y="10" width="2" height="1" fill="#333344"/></svg>` }
+    { id: 'semicon', name: '반도체', stocks: ['005930', '000660', '028260', '403870', '007660'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="1" width="12" height="12" fill="#555566"/><rect x="4" y="3" width="8" height="6" fill="#00ffcc"/><rect x="3" y="13" width="1" height="2" fill="#ffe600"/><rect x="5" y="13" width="1" height="2" fill="#ffe600"/><rect x="7" y="13" width="1" height="2" fill="#ffe600"/><rect x="9" y="13" width="1" height="2" fill="#ffe600"/><rect x="11" y="13" width="1" height="2" fill="#ffe600"/><rect x="12" y="13" width="1" height="2" fill="#ffe600"/></svg>` },
+    { id: 'ai', name: 'AI/클라우드', stocks: ['035420', '035720', '292150', '041020', '047560'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="4" y="13" width="8" height="2" fill="#555566"/><rect x="6" y="11" width="4" height="2" fill="#777788"/><rect x="5" y="2" width="6" height="1" fill="#bd00ff"/><rect x="4" y="3" width="8" height="8" fill="#bd00ff"/><rect x="3" y="5" width="10" height="4" fill="#bd00ff"/><rect x="5" y="4" width="2" height="2" fill="#ffffff"/><rect x="9" y="8" width="1" height="1" fill="#00ffcc"/></svg>` },
+    { id: 'game', name: '게임/엔터', stocks: ['259960', '251270', '036570', '352820', '041510'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="3" height="3" fill="#ff0055"/><rect x="8" y="4" width="1" height="5" fill="#cccccc"/><rect x="3" y="9" width="11" height="5" fill="#1f2833"/><rect x="5" y="11" width="2" height="1" fill="#ffe600"/><rect x="10" y="11" width="2" height="1" fill="#00ffcc"/></svg>` },
+    { id: 'finance', name: '금융/은행', stocks: ['105560', '055550', '138040', '086790', '316140'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="1" y="4" width="14" height="10" fill="#aa6633"/><rect x="3" y="2" width="10" height="2" fill="#aa6633"/><rect x="2" y="3" width="12" height="1" fill="#ffe600"/><rect x="4" y="6" width="8" height="2" fill="#ffe600"/><rect x="7" y="8" width="2" height="3" fill="#ffffff"/></svg>` },
+    { id: 'bio', name: '제약/바이오', stocks: ['207940', '068270', '000100', '128940', '196170'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="2" height="2" fill="#aa6633"/><rect x="6" y="3" width="4" height="3" fill="#ffffff" opacity="0.7"/><rect x="4" y="6" width="8" height="8" fill="#ff0055"/><rect x="6" y="8" width="1" height="1" fill="#ffffff"/><rect x="9" y="10" width="1" height="1" fill="#ffffff"/><rect x="7" y="11" width="1" height="1" fill="#ffffff"/></svg>` },
+    { id: 'car', name: '자동차', stocks: ['005380', '000270', '012330', '018880', '011210'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="6" width="12" height="6" fill="#ff0055"/><rect x="4" y="12" width="2" height="2" fill="#111111"/><rect x="10" y="12" width="2" height="2" fill="#111111"/><rect x="3" y="4" width="8" height="2" fill="#00ffcc"/><rect x="13" y="6" width="2" height="2" fill="#ffffff"/></svg>` },
+    { id: 'energy', name: '에너지', stocks: ['034020', '009830', '015760', '267260', '298040'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="8" y="1" width="3" height="2" fill="#ffe600"/><rect x="7" y="3" width="3" height="2" fill="#ffe600"/><rect x="6" y="5" width="4" height="2" fill="#ffe600"/><rect x="4" y="7" width="8" height="2" fill="#ffe600"/><rect x="5" y="9" width="4" height="2" fill="#ffe600"/><rect x="4" y="11" width="3" height="2" fill="#ffe600"/><rect x="3" y="13" width="2" height="2" fill="#ffe600"/></svg>` },
+    { id: 'battery', name: '2차전지', stocks: ['373220', '086520', '003670', '005490', '006400'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="7" y="1" width="2" height="1" fill="#777788"/><rect x="4" y="2" width="8" height="12" fill="#1b1e2c" stroke="#ffffff" stroke-width="1"/><rect x="5" y="4" width="6" height="8" fill="#00ffcc"/><rect x="7" y="6" width="2" height="4" fill="#ffffff"/></svg>` },
+    { id: 'robot', name: '로보틱스', stocks: ['454910', '277810', '348210', '058610', '117730'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="8" width="4" height="6" fill="#777788"/><rect x="6" y="6" width="4" height="3" fill="#9999aa"/><rect x="10" y="4" width="4" height="3" fill="#555566"/><rect x="7" y="12" width="6" height="2" fill="#ffe600"/></svg>` },
+    { id: 'food', name: 'K-푸드', stocks: ['003230', '004370', '001680', '097950', '017810'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="3" y="7" width="10" height="6" fill="#ff9900"/><rect x="2" y="6" width="12" height="1" fill="#ffffff"/><rect x="5" y="3" width="1" height="3" fill="#ffe600"/><rect x="9" y="3" width="1" height="3" fill="#ffe600"/><rect x="5" y="9" width="6" height="2" fill="#ff0055"/></svg>` },
+    { id: 'beauty', name: '화장품', stocks: ['090430', '192820', '161890', '278470', '214420'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="6" y="8" width="4" height="7" fill="#333333"/><rect x="7" y="3" width="2" height="5" fill="#ff0055"/><rect x="5" y="8" width="6" height="1" fill="#ffe600"/></svg>` },
+    { id: 'defense', name: '방산', stocks: ['012450', '079550', '064350', '047810', '103140'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="12" height="2" fill="#777788"/><rect x="3" y="4" width="10" height="2" fill="#ff0055"/><rect x="4" y="6" width="8" height="2" fill="#ff0055"/><rect x="5" y="8" width="6" height="2" fill="#ff0055"/><rect x="6" y="10" width="4" height="2" fill="#ff0055"/><rect x="7" y="12" width="2" height="2" fill="#777788"/><rect x="7" y="3" width="2" height="8" fill="#ffe600"/><rect x="4" y="6" width="8" height="2" fill="#ffe600"/></svg>` },
+    { id: 'ship', name: '조선/중공업', stocks: ['329180', '010140', '042660', '010620', '443060'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="0" y="14" width="16" height="1" fill="#00aaff"/><rect x="2" y="11" width="12" height="3" fill="#777788"/><rect x="1" y="12" width="14" height="2" fill="#777788"/><rect x="6" y="7" width="4" height="4" fill="#9999aa"/><rect x="7" y="6" width="2" height="1" fill="#555566"/><rect x="3" y="10" width="2" height="1" fill="#333344"/><rect x="11" y="10" width="2" height="1" fill="#333344"/></svg>` }
   ];
 
   async function loadThemeBoard() {
     if (!themeBoard) return;
     
-    // 1. 초기 로딩 시 흑백 구조 선마운트 (툴팁 초기화)
+    // 1. 초기 로딩 시 흑백 구조 선마운트 (툴팁 상자 동적 삽입)
     if (themeBoard.children.length === 0) {
       themeBoard.innerHTML = '';
       RETRO_THEMES.forEach((theme) => {
@@ -86,9 +86,33 @@ document.addEventListener('DOMContentLoaded', () => {
         iconContainer.className = 'theme-item-icon';
         iconContainer.innerHTML = theme.icon;
 
+        // 커스텀 툴팁 엘리먼트 생성
+        const tooltip = document.createElement('div');
+        tooltip.className = 'theme-tooltip-box';
+        tooltip.textContent = `${theme.name} (로딩 중...)`;
+
         item.appendChild(iconContainer);
+        item.appendChild(tooltip);
+
+        // 모바일 터치 이벤트 바인딩 (터치 시 툴팁 고정 표시)
+        item.addEventListener('touchstart', (e) => {
+          e.stopPropagation();
+          const alreadyActive = item.classList.contains('touch-active');
+          themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
+          if (!alreadyActive) {
+            item.classList.add('touch-active');
+          }
+        }, { passive: true });
+
         themeBoard.appendChild(item);
       });
+
+      // 문서 전체에 터치 리스너 1회 선언하여 뱃지 밖을 터치하면 툴팁 회수
+      document.addEventListener('touchstart', (e) => {
+        if (!e.target.closest('.theme-item')) {
+          themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
+        }
+      }, { passive: true });
     }
 
     try {
@@ -116,16 +140,28 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       );
 
-      // 3. 연산 완료된 테마별 카드 상태 갱신 (상승은 컬러 active, 하락/보합은 흑백 gray)
-      results.forEach((result) => {
-        if (result.status === 'fulfilled') {
-          const { id, name, avgChange } = result.value;
-          const item = themeBoard.querySelector(`[data-theme-id="${id}"]`);
-          if (item) {
-            const isUp = avgChange > 0;
-            item.className = `theme-item ${isUp ? 'active' : 'gray'}`;
-            item.title = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)`;
+      // 3. 연산 완료된 결과를 내림차순 정렬 (많이 오른 테마가 먼저 오도록)
+      const sortedResults = results
+        .filter(r => r.status === 'fulfilled')
+        .map(r => r.value)
+        .sort((a, b) => b.avgChange - a.avgChange);
+
+      // 4. 정렬 순서에 맞게 DOM 노드를 다시 붙이고 상태 갱신
+      sortedResults.forEach((result) => {
+        const { id, name, avgChange } = result;
+        const item = themeBoard.querySelector(`[data-theme-id="${id}"]`);
+        if (item) {
+          const isUp = avgChange > 0;
+          item.className = `theme-item ${isUp ? 'active' : 'gray'}`;
+          
+          const tooltip = item.querySelector('.theme-tooltip-box');
+          if (tooltip) {
+            tooltip.textContent = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)`;
           }
+          item.title = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)`;
+
+          // DOM의 맨 마지막으로 다시 붙임으로써 sorted 순서가 화면에 실시간 반영됨!
+          themeBoard.appendChild(item);
         }
       });
     } catch (e) {

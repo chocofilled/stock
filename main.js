@@ -356,6 +356,9 @@ document.addEventListener('DOMContentLoaded', () => {
     favoritePanelOpen = open;
     if (!favoritePanel) return;
     favoritePanel.classList.toggle('hidden', !open);
+    if (themeBoard) {
+      themeBoard.classList.toggle('hidden', open);
+    }
     if (favoritePanelToggle) {
       favoritePanelToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       favoritePanelToggle.setAttribute('aria-label', open ? '즐겨찾기 목록 닫기' : '즐겨찾기 목록 열기');

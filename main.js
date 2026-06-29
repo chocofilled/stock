@@ -609,6 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
       row.appendChild(right);
       row.appendChild(dot);
       row.addEventListener('click', (e) => {
+        e.stopPropagation(); // document click 핸들러가 패널을 닫지 않도록 이벤트 버블링 차단
         // 드래그가 끝났을 때의 클릭 이벤트 발생을 방지하거나 구분
         // dragend 직후 click이 바로 발생할 수 있으므로, 드래그 상태가 해제된 지 얼마 안 되었다면 동작을 막아야 할 수도 있음.
         // 다만 row.classList.contains('dragging')는 이미 dragend에서 지워지므로 다른 방법이 필요할 수 있음.
@@ -1556,7 +1557,9 @@ document.addEventListener('DOMContentLoaded', () => {
       favoritePanelToggle &&
       !favoritePanel.contains(e.target) &&
       !favoritePanelToggle.contains(e.target) &&
-      !(favoritesRefreshBtn && favoritesRefreshBtn.contains(e.target))
+      !(favoritesRefreshBtn && favoritesRefreshBtn.contains(e.target)) &&
+      // 즐겨찾기에서 연 상세정보 패널 내부를 클릭한 경우에는 패널을 닫지 않음
+      !(openedFromFavorites && infoPanel && infoPanel.contains(e.target))
     ) {
       setFavoritePanelOpen(false);
     }

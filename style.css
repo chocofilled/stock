@@ -1509,7 +1509,8 @@ button,
 .favorites-refresh, 
 .favorites-panel-toggle, 
 .stock-panel-close, 
-.alert-save-btn {
+.alert-save-btn,
+.stock-alert-toggle {
   border-radius: 0 !important;
   border: 2px solid #ffffff !important;
   background: #1f2833 !important;
@@ -1527,9 +1528,11 @@ button:hover,
 .favorites-refresh:hover,
 .favorites-panel-toggle:hover,
 .stock-panel-close:hover,
-.alert-save-btn:hover {
-  background: #45a29e !important;
+.alert-save-btn:hover,
+.stock-alert-toggle:hover {
+  background: #ffe600 !important; /* 오락실 골드 옐로우 변경 */
   color: #000000 !important;
+  border-color: #ffe600 !important;
   transform: none !important;
 }
 
@@ -1538,19 +1541,35 @@ button:active,
 .favorites-refresh:active,
 .favorites-panel-toggle:active,
 .stock-panel-close:active,
-.alert-save-btn:active {
+.alert-save-btn:active,
+.stock-alert-toggle:active {
   transform: translate(1px, 1px) !important;
   box-shadow: 2px 2px 0px #000000 !important;
 }
 
-/* 슬림 픽셀 입력창 */
+/* 가격 알림 버튼 활성 상태 */
+.stock-alert-toggle.active {
+  background: #bd00ff !important;
+  border-color: #bd00ff !important;
+  color: #ffffff !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+}
+
+.stock-alert-toggle-bell {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  display: inline-block;
+  line-height: 1 !important;
+}
+
+/* 슬림 픽셀 입력창 (모바일 강제 줌인 방지를 위해 font-size 16px 지정) */
 .search-container input {
   border-radius: 0 !important;
   border: 2px solid #ffffff !important;
   background: #000000 !important;
-  color: #00ffcc !important;
+  color: #ffe600 !important;
   box-shadow: 3px 3px 0px #000000 !important;
   font-family: var(--font-sans) !important;
+  font-size: 16px !important;
 }
 
 .search-container input:focus {
@@ -1577,9 +1596,9 @@ button:active,
 .favorite-item:hover,
 .favorite-item.active,
 .news-list-item:hover {
-  background: #00ffcc !important;
+  background: #ffe600 !important;
   color: #000000 !important;
-  border-color: #00ffcc !important;
+  border-color: #ffe600 !important;
 }
 
 .dropdown-item:hover .dropdown-item-code,
@@ -1612,7 +1631,7 @@ button:active,
 }
 
 .market-badge.kosdaq, .market-tag.kosdaq {
-  background: #00ffcc !important;
+  background: #ffe600 !important;
   color: #000000 !important;
 }
 
@@ -1662,14 +1681,16 @@ button:active,
   width: 2px !important;
 }
 
-/* 별 아이콘 및 알림 점 크기 최적화 (가독성 향상) */
+/* 별 아이콘 및 알림 점 크기 최적화 (가독성 및 깨짐방지) */
 .favorite-toggle {
-  width: 36px !important;
-  height: 36px !important;
+  width: 42px !important;
+  height: 42px !important;
 }
 
 .favorite-toggle-star {
-  font-size: 20px !important;
+  font-size: 24px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif !important;
+  line-height: 1 !important;
 }
 
 .favorite-toggle-dot {
@@ -1680,13 +1701,15 @@ button:active,
 }
 
 .favorites-panel-toggle {
-  width: 52px !important;
-  height: 52px !important;
+  width: 56px !important;
+  height: 56px !important;
 }
 
 .favorites-panel-toggle-star {
-  font-size: 26px !important;
-  transform: translateX(-6px) translateY(-1px) !important;
+  font-size: 30px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif !important;
+  transform: translateX(-7px) translateY(-1px) !important;
+  line-height: 1 !important;
 }
 
 .favorites-panel-toggle-dot {
@@ -1700,7 +1723,7 @@ button:active,
 }
 
 .stock-alert-toggle {
-  width: 36px !important;
-  height: 36px !important;
+  width: 42px !important; /* 즐겨찾기 버튼과 높이 매칭 */
+  height: 42px !important;
   font-size: 18px !important;
 }

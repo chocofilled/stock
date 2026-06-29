@@ -1530,9 +1530,9 @@ button:hover,
 .stock-panel-close:hover,
 .alert-save-btn:hover,
 .stock-alert-toggle:hover {
-  background: #bd00ff !important; /* 보라색 테마 통일 */
-  color: #ffffff !important; /* 보라 배경 대비 흰색 글자 */
+  /* 배경은 변하지 않고 테두리와 그림자만 보라색으로 변형 */
   border-color: #bd00ff !important;
+  box-shadow: 3px 3px 0px #bd00ff !important;
   transform: none !important;
 }
 
@@ -1544,12 +1544,13 @@ button:active,
 .alert-save-btn:active,
 .stock-alert-toggle:active {
   transform: translate(1px, 1px) !important;
-  box-shadow: 2px 2px 0px #000000 !important;
+  border-color: #bd00ff !important;
+  box-shadow: 2px 2px 0px #bd00ff !important;
 }
 
-/* 가격 알림 버튼 활성 상태 (배경 검정, 테두리 흰색) */
+/* 가격 알림 버튼 활성 상태 (배경 #1f2833, 테두리 흰색) */
 .stock-alert-toggle.active {
-  background: #000000 !important;
+  background: #1f2833 !important;
   border-color: #ffffff !important;
   color: #ffe600 !important;
   box-shadow: 3px 3px 0px #000000 !important;
@@ -1596,9 +1597,10 @@ button:active,
 .favorite-item:hover,
 .favorite-item.active,
 .news-list-item:hover {
-  background: #bd00ff !important; /* 보라색 테마 통일 */
-  color: #ffffff !important;
+  /* 아이템 호버 시에도 배경은 유지하고 테두리와 그림자만 보라색으로 */
+  background: #1b1e2c !important;
   border-color: #bd00ff !important;
+  box-shadow: 3px 3px 0px #bd00ff !important;
 }
 
 .dropdown-item:hover .dropdown-item-code,
@@ -1614,7 +1616,8 @@ button:active,
 .news-list-item:hover .news-item-title,
 .news-list-item:hover .news-item-time,
 .news-list-item:hover .news-item-office {
-  color: #ffffff !important; /* 흰색 글자 반전 */
+  /* 글자색 반전을 하지 않고 흰색 톤 유지 */
+  color: #ffffff !important;
 }
 
 /* 태그 및 뱃지 스타일 */
@@ -1738,7 +1741,7 @@ button:active,
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  background: #000000 !important; /* 기본 배경 검정 */
+  background: #1f2833 !important; /* 기본 배경 #1f2833 지정 */
   border-color: #ffffff !important;
 }
 
@@ -1757,7 +1760,7 @@ button:active,
   color: #ffe600 !important;
 }
 .favorites-refresh:hover .favorites-refresh-svg {
-  color: #ffffff !important; /* 보라 배경 위에 흰색 화살표 */
+  color: #ffe600 !important; /* 보라 배경 반전이 없으므로 노란색 유지 */
 }
 
 /* 2. 즐겨찾기 별 아이콘 상태 연동 */
@@ -1770,7 +1773,7 @@ button:active,
 }
 
 .favorite-toggle:hover .pixel-star-svg {
-  color: #ffffff !important; /* 호버 시 보라 배경 위에 흰색 반전 */
+  color: #ffe600 !important; /* 호버 시 노랗게 반짝 */
 }
 
 .favorites-panel-toggle-star .pixel-star-svg {
@@ -1778,7 +1781,7 @@ button:active,
 }
 
 .favorites-panel-toggle:hover .pixel-star-svg {
-  color: #ffffff !important;
+  color: #ffe600 !important;
 }
 
 /* 3. 가격 알림 종 아이콘 상태 연동 */
@@ -1791,7 +1794,7 @@ button:active,
 }
 
 .stock-alert-toggle:hover .pixel-bell-svg {
-  color: #ffffff !important; /* 호버 시 보라 배경 위에 흰색 반전 */
+  color: #ffe600 !important; /* 호버 시 노란색 */
 }
 
 /* 알림 점(빨간 점/파란 점/상세 뱃지 도트) 사각형 픽셀화 */

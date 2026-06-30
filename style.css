@@ -2332,19 +2332,57 @@ body {
   height: 6px !important;
 }
 
-/* ==========================================================================
-   High Contrast / Visibility Adjustments for White Background Components
-   ========================================================================== */
-/* 즐겨찾기 서브 텍스트(종목코드, 시장) 가시성 확보 */
-.favorite-item-meta span {
-  color: #555555 !important;
+/* 메인 윈도우 최소 높이 확보 및 바디 스크롤바 영역 고정으로 레이아웃 시프트 방지 */
+.main-window.window {
+  min-height: 520px !important;
+}
+body {
+  overflow-y: scroll !important;
 }
 
-/* 즐겨찾기 시세 등락 비율 컬러 대비 조정 (진한 빨강/파랑) */
-.favorite-item-ratio.up {
+/* 즐겨찾기 패널 자체의 배경색을 회색(#c0c0c0)으로 변경 (검은색 탈피) */
+.favorites-panel {
+  background: var(--win-gray) !important;
+  border: 2px solid !important;
+  border-color: var(--win-shadow-light) var(--win-light) var(--win-light) var(--win-shadow-light) !important;
+  box-shadow: none !important;
+  padding: 4px !important;
+  margin-bottom: 8px !important;
+}
+
+.favorites-panel-header {
+  border-bottom: 1px solid var(--win-shadow-light) !important;
+  padding-bottom: 4px !important;
+  margin-bottom: 6px !important;
+}
+
+.fav-count-box {
+  color: #000000 !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+}
+
+.favorites-panel-count {
+  color: #000080 !important; /* 종목 수 표기 색상: 윈도우 네이비 블루 */
+  font-weight: bold !important;
+}
+
+/* 즐겨찾기 비활성 상태 종목의 텍스트 색상 및 등락 색상 강제 지정 (스티키 호버로 인한 흰색 변색 원천 방지) */
+.favorite-item:not(.active) {
+  background: #ffffff !important;
+  border-color: #e0e0e0 !important;
+}
+.favorite-item:not(.active) .favorite-item-name,
+.favorite-item:not(.active) .favorite-item-price {
+  color: #000000 !important;
+}
+.favorite-item:not(.active) .favorite-item-meta span {
+  color: #555555 !important;
+}
+.favorite-item:not(.active) .favorite-item-ratio.up {
   color: #c00000 !important;
 }
-.favorite-item-ratio.down {
+.favorite-item:not(.active) .favorite-item-ratio.down {
   color: #0000c0 !important;
 }
 
@@ -2380,12 +2418,19 @@ body {
   }
 }
 
-/* 우측 상단 즐겨찾기 폴더/패널 버튼 아이콘 (노란색 픽셀 별표) */
+/* 우측 상단 즐겨찾기 폴더/패널 버튼 아이콘 (검은색 픽셀 별표 및 정중앙 정렬) */
+.title-bar-controls button#favorites-panel-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
 .title-bar-controls button#favorites-panel-toggle::after {
   content: '★' !important;
   font-size: 10px !important;
-  color: #ffaa00 !important;
-  display: block !important;
+  color: #000000 !important; /* 검은색 */
+  display: inline-block !important;
   line-height: 1 !important;
   font-family: monospace, sans-serif !important;
 }

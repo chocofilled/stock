@@ -76,12 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function hideThemeTooltip() {
     if (!themeTooltipPanel || !exchangeBox) return;
     themeTooltipPanel.style.display = 'none';
-    if (exchangeBoxWasVisible) {
+    if (!favoritePanelOpen) {
       exchangeBox.style.display = '';
     }
   }
 
-  // 툴팁 패널 자체를 탭/클릭하면 툴팁을 닫도록 설정
+  // 툴팁 패널 자체를 클릭(터치)하면 툴팁을 닫도록 설정
   if (themeTooltipPanel) {
     themeTooltipPanel.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -90,13 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
         themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
       }
     });
-    themeTooltipPanel.addEventListener('touchstart', (e) => {
-      e.stopPropagation();
-      hideThemeTooltip();
-      if (themeBoard) {
-        themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
-      }
-    }, { passive: true });
   }
 
   const favoritesOrderToggleBtn = document.getElementById('favorites-order-toggle');

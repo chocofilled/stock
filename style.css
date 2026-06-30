@@ -1931,7 +1931,7 @@ button:active,
   padding: 5px 8px !important;
   font-family: 'DungGeunMo', sans-serif !important;
   font-size: 11px !important;
-  white-space: nowrap !important;
+  white-space: pre !important;
   z-index: 9999 !important;
   box-shadow: 3px 3px 0px #000000 !important;
   pointer-events: none !important; /* 마우스 간섭 방지 */

@@ -120,27 +120,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      // 2. 대장주 3선 시세 변동률 비동기 계산
+      // 2. 대장주 5선 시세 변동률 및 주가 정보 비동기 계산
       const results = await Promise.allSettled(
         RETRO_THEMES.map(async (theme) => {
-          const prices = await Promise.allSettled(
+          const stockDetails = await Promise.allSettled(
             theme.stocks.map(async (code) => {
               const res = await fetchKoreanRealtimePrice({ code });
-              return res.ratio || 0;
+              return {
+                name: res.name || code,
+                price: res.price,
+                ratio: res.ratio || 0
+              };
             })
           );
 
           let sum = 0;
           let count = 0;
-          prices.forEach((p) => {
+          const details = [];
+          stockDetails.forEach((p) => {
             if (p.status === 'fulfilled') {
-              sum += p.value;
+              sum += p.value.ratio;
               count++;
+              details.push(p.value);
             }
           });
 
           const avgChange = count > 0 ? sum / count : 0;
-          return { id: theme.id, name: theme.name, avgChange };
+          return { id: theme.id, name: theme.name, avgChange, details };
         })
       );
 
@@ -152,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 4. 정렬 순서에 맞게 DOM 노드를 다시 붙이고 상태 갱신
       sortedResults.forEach((result) => {
-        const { id, name, avgChange } = result;
+        const { id, name, avgChange, details } = result;
         const item = themeBoard.querySelector(`[data-theme-id="${id}"]`);
         if (item) {
           const isUp = avgChange > 0;
@@ -160,7 +166,15 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const tooltip = item.querySelector('.theme-tooltip-box');
           if (tooltip) {
-            tooltip.textContent = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)`;
+            let tooltipContent = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)\n`;
+            if (details && details.length > 0) {
+              tooltipContent += details.map(d => {
+                const formattedPrice = d.price !== undefined ? d.price.toLocaleString('ko-KR') + '원' : '로딩 실패';
+                const sign = d.ratio >= 0 ? '+' : '';
+                return ` - ${d.name}: ${formattedPrice} (${sign}${d.ratio.toFixed(2)}%)`;
+              }).join('\n');
+            }
+            tooltip.textContent = tooltipContent;
           }
           item.title = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)`;
 
@@ -696,6 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     return {
+      name: data.stockName || '',
       price,
       change,
       ratio,

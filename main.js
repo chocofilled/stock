@@ -152,6 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 공통 토글 함수 (선택 시 열림, 한 번 더 선택 시 닫힘)
         const toggleTooltip = (e) => {
+          if (e.cancelable) {
+            e.preventDefault(); // 모바일 300ms 딜레이 가상 마우스이벤트 및 오인 탭 현상 차단
+          }
           e.stopPropagation();
           const alreadyActive = item.classList.contains('touch-active');
           themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
@@ -165,7 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (isTouchDevice) {
-          item.addEventListener('touchstart', toggleTooltip, { passive: true });
+          // preventDefault 사용을 위해 passive: false 적용
+          item.addEventListener('touchstart', toggleTooltip, { passive: false });
         } else {
           item.addEventListener('click', toggleTooltip);
           // PC용 호버 동작

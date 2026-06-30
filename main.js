@@ -1047,7 +1047,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const change = price - prevClose;
     const ratio = prevClose ? (change / prevClose) * 100 : 0;
     const currency = meta.currency || (stock.country === 'JP' ? 'JPY' : 'USD');
-    return { price, change, ratio, currency };
+    const marketTime = meta.regularMarketTime || null; // Unix timestamp (seconds)
+    return { price, change, ratio, currency, marketTime };
   }
 
   async function selectStock(stock) {
@@ -1531,8 +1532,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const updatedEl = document.getElementById('exchange-updated');
       if (updatedEl) {
-        const now = new Date();
-        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        // usdData.marketTime 기준 (없으면 jpyData.marketTime, 그도 없으면 현재시각 fallback)
+        const rawTime = usdData.marketTime || jpyData.marketTime || null;
+        let timeStr;
+        if (rawTime) {
+          const marketDate = new Date(rawTime * 1000);
+          timeStr = new Intl.DateTimeFormat('ko-KR', {
+            timeZone: 'Asia/Seoul',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }).format(marketDate);
+        } else {
+          const now = new Date();
+          timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
         updatedEl.textContent = `Updated at: ${timeStr} KST`;
       }
     } catch (err) {

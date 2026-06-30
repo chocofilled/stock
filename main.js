@@ -1114,7 +1114,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const width = rect.width;
     const height = rect.height;
-    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
 
     const prices = points.map(p => p.price);
     const minVal = Math.min(...prices);
@@ -1880,10 +1881,48 @@ document.addEventListener('DOMContentLoaded', () => {
   // 환율 표기 시작 (exchangerate.fun · 1시간 갱신)
   loadExchangeRates();
   
+  // 1초 단위 타이머로 변경하여 상태 표시줄 정보 업데이트 및 5분(300초) 주기 갱신 실행
+  const refreshIntervalSec = 5 * 60; // 300s
+  let nextRefreshTime = Date.now() + refreshIntervalSec * 1000;
+  const refreshStatusEl = document.getElementById('refresh-status');
+  const statusBarFields = document.querySelectorAll('.status-bar-field');
+  const timeFieldEl = statusBarFields[statusBarFields.length - 1]; // 마지막 필드가 시계 영역
+
+  async function triggerPeriodicRefresh() {
+    if (refreshStatusEl) refreshStatusEl.textContent = '자동 갱신: 업데이트 중...';
+    try {
+      await Promise.allSettled([
+        refreshFavoriteAlerts(),
+        loadThemeBoard()
+      ]);
+    } catch (e) {
+      console.warn('Periodic refresh failed:', e);
+    }
+    nextRefreshTime = Date.now() + refreshIntervalSec * 1000;
+  }
+
   setInterval(() => {
-    refreshFavoriteAlerts();
-    loadThemeBoard();
-  }, 5 * 60 * 1000);
+    const now = Date.now();
+    const remainSec = Math.max(0, Math.ceil((nextRefreshTime - now) / 1000));
+    
+    if (refreshStatusEl) {
+      const min = Math.floor(remainSec / 60);
+      const sec = remainSec % 60;
+      refreshStatusEl.textContent = `자동 갱신: ${min}분 ${String(sec).padStart(2, '0')}초 후`;
+    }
+
+    if (remainSec <= 0) {
+      triggerPeriodicRefresh();
+    }
+
+    // 시계 갱신 (KST 포맷)
+    if (timeFieldEl) {
+      const date = new Date();
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mm = String(date.getMinutes()).padStart(2, '0');
+      timeFieldEl.textContent = `KST ${hh}:${mm}`;
+    }
+  }, 1000);
 
   // 환율은 1시간마다 갱신 (API 갱신 주기에 맞춤)
   setInterval(loadExchangeRates, 60 * 60 * 1000);

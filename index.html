@@ -12,65 +12,53 @@
 </head>
 <body>
   <div id="app">
-    <div class="background-glows">
-      <div class="glow glow-1"></div>
-      <div class="glow glow-2"></div>
-    </div>
-
-    <main class="card">
-      <div class="card-border-gradient"></div>
-      <div class="card-content">
-        <div class="top-actions">
-          <button id="favorites-refresh" class="favorites-refresh" type="button" aria-label="즐겨찾기 새로고침">
-            <svg class="favorites-refresh-svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
-              <rect x="4" y="2" width="8" height="2"/>
-              <rect x="11" y="4" width="2" height="2"/>
-              <rect x="12" y="5" width="2" height="5"/>
-              <rect x="4" y="12" width="8" height="2"/>
-              <rect x="3" y="10" width="2" height="2"/>
-              <rect x="2" y="6" width="2" height="5"/>
-              <rect x="10" y="5" width="6" height="2"/>
-              <rect x="12" y="7" width="2" height="2"/>
-              <rect x="0" y="9" width="6" height="2"/>
-              <rect x="2" y="7" width="2" height="2"/>
-            </svg>
-          </button>
-          <button id="favorites-panel-toggle" class="favorites-panel-toggle" type="button" aria-label="즐겨찾기 목록 열기" aria-expanded="false">
-            <span class="favorites-panel-toggle-dots">
-              <span class="favorites-panel-toggle-dot favorites-panel-toggle-dot--up" id="favorites-panel-alert-dot-up"></span>
-              <span class="favorites-panel-toggle-dot favorites-panel-toggle-dot--down" id="favorites-panel-alert-dot-down"></span>
-            </span>
-            <span class="favorites-panel-toggle-star">
-              <svg class="pixel-star-svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
-                <rect x="7" y="1" width="2" height="1"/>
-                <rect x="7" y="2" width="2" height="1"/>
-                <rect x="6" y="3" width="4" height="1"/>
-                <rect x="6" y="4" width="4" height="1"/>
-                <rect x="5" y="5" width="6" height="1"/>
-                <rect x="1" y="6" width="14" height="1"/>
-                <rect x="2" y="7" width="12" height="1"/>
-                <rect x="3" y="8" width="10" height="1"/>
-                <rect x="4" y="9" width="8" height="1"/>
-                <rect x="3" y="10" width="10" height="1"/>
-                <rect x="2" y="11" width="12" height="1"/>
-                <rect x="1" y="12" width="4" height="1"/>
-                <rect x="11" y="12" width="4" height="1"/>
-                <rect x="1" y="13" width="3" height="1"/>
-                <rect x="12" y="13" width="3" height="1"/>
-                <rect x="2" y="14" width="1" height="1"/>
-                <rect x="13" y="14" width="1" height="1"/>
-              </svg>
-            </span>
-          </button>
+    <main class="window main-window">
+      <!-- 윈도우 타이틀바 -->
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <svg viewBox="0 0 16 16" width="16" height="16" style="margin-right: 6px; shape-rendering: crispEdges;">
+            <rect x="2" y="2" width="12" height="12" fill="#c0c0c0"/>
+            <rect x="2" y="2" width="12" height="2" fill="#000080"/>
+            <rect x="4" y="5" width="8" height="2" fill="#00ffcc"/>
+            <rect x="4" y="8" width="5" height="2" fill="#ff0055"/>
+          </svg>
+          stonks-9800.exe - Live Search
         </div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize" type="button"></button>
+          <button aria-label="Maximize" type="button"></button>
+          <button id="favorites-panel-toggle" class="favorites-panel-toggle" type="button" aria-label="Close" aria-expanded="false"></button>
+        </div>
+      </div>
+
+      <div class="window-body">
+        <div class="top-menu-bar">
+          <span class="menu-item">파일(F)</span>
+          <span class="menu-item">보기(V)</span>
+          <span class="menu-item">즐겨찾기(A)</span>
+          <span class="menu-item">도움말(H)</span>
+        </div>
+
+        <div class="top-actions">
+          <button id="favorites-refresh" class="favorites-refresh win-btn" type="button" aria-label="새로고침">
+            새로고침(R)
+          </button>
+          <span class="favorites-panel-toggle-dots" style="display:none;">
+            <span class="favorites-panel-toggle-dot favorites-panel-toggle-dot--up" id="favorites-panel-alert-dot-up"></span>
+            <span class="favorites-panel-toggle-dot favorites-panel-toggle-dot--down" id="favorites-panel-alert-dot-down"></span>
+          </span>
+        </div>
+
         <div class="theme-board" id="theme-board"></div>
 
         <section id="favorites-panel" class="favorites-panel hidden" aria-label="즐겨찾기 목록">
           <div class="favorites-panel-header">
-            <span class="favorites-panel-count" id="favorites-panel-count">0</span>
-            <button id="favorites-order-toggle" class="favorites-order-toggle" type="button">순서 변경</button>
+            <div class="fav-count-box">
+              개수: <span class="favorites-panel-count" id="favorites-panel-count">0</span>
+            </div>
+            <button id="favorites-order-toggle" class="favorites-order-toggle win-btn" type="button">순서 변경</button>
           </div>
-          <div id="favorites-list" class="favorites-list"></div>
+          <div id="favorites-list" class="favorites-list window-inset"></div>
         </section>
 
         <div class="exchange-box" id="exchange-box">
@@ -79,7 +67,7 @@
             <div class="exchange-row">
               <div class="exchange-item" id="usd-item">
                 <div class="exchange-info">
-                  <span class="exchange-label">USD</span>
+                  <span class="exchange-label">USD/KRW</span>
                   <span class="exchange-rate" id="usd-rate"><span class="rate-loading"></span></span>
                   <span class="exchange-change" id="usd-change"></span>
                 </div>
@@ -87,7 +75,7 @@
               <div class="exchange-separator"></div>
               <div class="exchange-item" id="jpy-item">
                 <div class="exchange-info">
-                  <span class="exchange-label">JPY</span>
+                  <span class="exchange-label">JPY/KRW(100엔)</span>
                   <span class="exchange-rate" id="jpy-rate"><span class="rate-loading"></span></span>
                   <span class="exchange-change" id="jpy-change"></span>
                 </div>
@@ -97,14 +85,14 @@
           </div>
 
           <!-- 테마 툴팁 정보 -->
-          <div id="exchange-tooltip-content" style="display: none; width: 100%; flex-direction: column;"></div>
+          <div id="exchange-tooltip-content" class="window-inset" style="display: none; width: 100%; flex-direction: column; padding: 4px; box-sizing: border-box; background: #ffffff; color: #000000;"></div>
         </div>
 
         <div class="search-section">
           <div class="search-container">
-            <input type="text" id="stock-search" autocomplete="off" disabled>
+            <input type="text" id="stock-search" autocomplete="off" disabled placeholder="종목 코드 또는 이름을 검색하세요...">
             <div id="search-loader" class="search-loader"></div>
-            <div id="dropdown-list" class="autocomplete-dropdown hidden"></div>
+            <div id="dropdown-list" class="autocomplete-dropdown hidden window-inset"></div>
           </div>
         </div>
 
@@ -113,53 +101,17 @@
             <span id="stock-market-badge" class="market-badge"></span>
             <div class="stock-header-actions">
               <span id="stock-code" class="stock-code"></span>
-              <button id="stock-alert-toggle" class="stock-alert-toggle hidden" type="button" aria-label="가격 알림 설정">
-                <span class="stock-alert-toggle-bell">
-                  <svg class="pixel-bell-svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
-                    <rect x="6" y="1" width="4" height="1"/>
-                    <rect x="5" y="2" width="1" height="1"/>
-                    <rect x="10" y="2" width="1" height="1"/>
-                    <rect x="5" y="3" width="6" height="1"/>
-                    <rect x="4" y="4" width="8" height="1"/>
-                    <rect x="4" y="5" width="8" height="1"/>
-                    <rect x="3" y="6" width="10" height="1"/>
-                    <rect x="3" y="7" width="10" height="1"/>
-                    <rect x="3" y="8" width="10" height="1"/>
-                    <rect x="2" y="9" width="12" height="1"/>
-                    <rect x="1" y="10" width="14" height="2"/>
-                    <rect x="7" y="12" width="2" height="2"/>
-                    <rect x="6" y="14" width="4" height="1"/>
-                  </svg>
-                </span>
+              <button id="stock-alert-toggle" class="stock-alert-toggle hidden win-btn" type="button" aria-label="가격 알림 설정">
+                알림(A)
               </button>
-              <button id="favorite-toggle" class="favorite-toggle" type="button" aria-label="즐겨찾기 추가">
+              <button id="favorite-toggle" class="favorite-toggle win-btn" type="button" aria-label="즐겨찾기 추가">
+                관심★
                 <span class="favorite-toggle-dot" id="favorite-alert-dot"></span>
-                <span class="favorite-toggle-star" id="favorite-toggle-star">
-                  <svg class="pixel-star-svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
-                    <rect x="7" y="1" width="2" height="1"/>
-                    <rect x="7" y="2" width="2" height="1"/>
-                    <rect x="6" y="3" width="4" height="1"/>
-                    <rect x="6" y="4" width="4" height="1"/>
-                    <rect x="5" y="5" width="6" height="1"/>
-                    <rect x="1" y="6" width="14" height="1"/>
-                    <rect x="2" y="7" width="12" height="1"/>
-                    <rect x="3" y="8" width="10" height="1"/>
-                    <rect x="4" y="9" width="8" height="1"/>
-                    <rect x="3" y="10" width="10" height="1"/>
-                    <rect x="2" y="11" width="12" height="1"/>
-                    <rect x="1" y="12" width="4" height="1"/>
-                    <rect x="11" y="12" width="4" height="1"/>
-                    <rect x="1" y="13" width="3" height="1"/>
-                    <rect x="12" y="13" width="3" height="1"/>
-                    <rect x="2" y="14" width="1" height="1"/>
-                    <rect x="13" y="14" width="1" height="1"/>
-                  </svg>
-                </span>
               </button>
             </div>
           </div>
           <h2 id="stock-name" class="stock-name"></h2>
-          <div class="stock-price-container">
+          <div class="stock-price-container window-inset">
             <div id="stock-price" class="stock-price">-</div>
             <div id="stock-price-change" class="stock-price-change">
               <span id="change-indicator"></span>
@@ -168,7 +120,7 @@
             </div>
           </div>
 
-          <div id="stock-alert-panel" class="stock-alert-panel hidden">
+          <div id="stock-alert-panel" class="stock-alert-panel hidden window-inset">
             <div class="alert-panel-title">가격 알림 설정</div>
             <div class="alert-type-selector">
               <label class="alert-radio-label">
@@ -199,7 +151,7 @@
               </div>
             </div>
             <div class="alert-panel-actions">
-              <button type="button" id="alert-settings-save" class="alert-save-btn">저장</button>
+              <button type="button" id="alert-settings-save" class="alert-save-btn win-btn">저장</button>
             </div>
           </div>
 
@@ -209,7 +161,9 @@
               <span class="chart-title">최근 15영업일 추이</span>
               <span id="chart-period-val" class="chart-period-val">-</span>
             </div>
-            <canvas id="stock-sparkline-canvas" width="400" height="110"></canvas>
+            <div class="window-inset chart-canvas-wrapper" style="background: #ffffff; padding: 4px;">
+              <canvas id="stock-sparkline-canvas" width="400" height="110" style="background: #ffffff;"></canvas>
+            </div>
           </div>
 
           <!-- 뉴스 수집 및 요약 컨테이너 -->
@@ -218,17 +172,25 @@
               <span class="news-title">📰 오늘의 뉴스 요약</span>
               <span id="news-count-badge" class="news-count-badge">0</span>
             </div>
-            <div id="news-summary-box" class="news-summary-box"></div>
-            <div id="news-list" class="news-list"></div>
+            <div id="news-summary-box" class="news-summary-box window-inset" style="background: #ffffff; color: #000000; padding: 6px; margin-bottom: 8px;"></div>
+            <div id="news-list" class="news-list window-inset" style="background: #ffffff; color: #000000; padding: 6px;"></div>
           </div>
 
           <div class="stock-panel-footer">
-            <button id="stock-panel-close" class="stock-panel-close" type="button" aria-label="종목 닫기">닫기</button>
+            <button id="stock-panel-close" class="stock-panel-close win-btn" type="button" aria-label="종목 닫기">확인</button>
           </div>
         </div>
 
       </div>
+
+      <!-- 윈도우 상태표시줄 (Statusbar) -->
+      <div class="status-bar">
+        <p class="status-bar-field">시스템 준비됨</p>
+        <p class="status-bar-field" id="refresh-status">자동 갱신: 대기 중</p>
+        <p class="status-bar-field" style="max-width: 90px; text-align: center;">KST 15:54</p>
+      </div>
     </main>
+  </div>
   </div>
 
   <script type="module" src="/main.js"></script>

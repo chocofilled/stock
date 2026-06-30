@@ -49,14 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
     html += `</div>`;
 
     if (details && details.length > 0) {
-      html += `<div style="display: grid; grid-template-columns: auto 1fr auto; column-gap: 16px; row-gap: 6px; font-size: 11px; align-items: center; width: 100%;">`;
+      html += `<div style="display: grid; grid-template-columns: auto 1fr auto; column-gap: 8px; row-gap: 6px; font-size: 11px; align-items: center; width: 100%;">`;
       html += details.map(d => {
         const formattedPrice = d.price !== undefined ? d.price.toLocaleString('ko-KR') + '원' : '로딩 실패';
         const sign = d.ratio >= 0 ? '+' : '';
         const color = d.ratio > 0 ? '#ff0055' : (d.ratio < 0 ? '#00aaff' : '#ffffff');
         return `<span style="color: #cccccc; text-align: left;">${d.name}</span>` +
-               `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 10px;">${formattedPrice}</span>` +
-               `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 10px;">(${sign}${d.ratio.toFixed(2)}%)</span>`;
+               `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 8px;">${formattedPrice}</span>` +
+               `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 8px;">(${sign}${d.ratio.toFixed(2)}%)</span>`;
       }).join('');
       html += `</div>`;
     } else {
@@ -79,6 +79,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (exchangeBoxWasVisible) {
       exchangeBox.style.display = '';
     }
+  }
+
+  // 툴팁 패널 자체를 탭/클릭하면 툴팁을 닫도록 설정
+  if (themeTooltipPanel) {
+    themeTooltipPanel.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hideThemeTooltip();
+      if (themeBoard) {
+        themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
+      }
+    });
+    themeTooltipPanel.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+      hideThemeTooltip();
+      if (themeBoard) {
+        themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
+      }
+    }, { passive: true });
   }
 
   const favoritesOrderToggleBtn = document.getElementById('favorites-order-toggle');

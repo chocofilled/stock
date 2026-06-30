@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const ptrContainer = document.getElementById('pull-to-refresh');
+  const ptrText = document.getElementById('ptr-text');
   const searchInput = document.getElementById('stock-search');
   const searchLoader = document.getElementById('search-loader');
   const dropdownList = document.getElementById('dropdown-list');
@@ -36,6 +38,44 @@ document.addEventListener('DOMContentLoaded', () => {
   const exchangeMainContent = document.getElementById('exchange-main-content');
   const exchangeTooltipContent = document.getElementById('exchange-tooltip-content');
   const themeDataCache = new Map();
+  const activeRequests = new Map();
+  const priceCache = new Map();
+
+  function getCacheKey(stock, type) {
+    return `${stock.country || 'KR'}:${stock.code}:${type}`;
+  }
+
+  async function getCachedOrFetch(stock, type, fetchFn) {
+    const key = getCacheKey(stock, type);
+    const now = Date.now();
+    
+    const cached = priceCache.get(key);
+    if (cached && cached.expires > now) {
+      return cached.data;
+    }
+    
+    if (activeRequests.has(key)) {
+      return activeRequests.get(key);
+    }
+    
+    const requestPromise = fetchFn()
+      .then((data) => {
+        priceCache.set(key, {
+          data,
+          expires: Date.now() + 10000 // 10s cache
+        });
+        activeRequests.delete(key);
+        return data;
+      })
+      .catch((err) => {
+        activeRequests.delete(key);
+        throw err;
+      });
+      
+    activeRequests.set(key, requestPromise);
+    return requestPromise;
+  }
+
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
   function showThemeTooltip(themeId) {
@@ -767,39 +807,42 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function fetchKoreanRealtimePrice(stock) {
-    const response = await fetch(`/api/naver-realtime/api/realtime/domestic/stock/${stock.code}`);
-    if (!response.ok) throw new Error('Naver Realtime API failed');
+    const fetchFn = async () => {
+      const response = await fetch(`/api/naver-realtime/api/realtime/domestic/stock/${stock.code}`);
+      if (!response.ok) throw new Error('Naver Realtime API failed');
 
-    const json = await response.json();
-    const data = json.datas?.[0];
-    if (!data) throw new Error('No realtime data');
+      const json = await response.json();
+      const data = json.datas?.[0];
+      if (!data) throw new Error('No realtime data');
 
-    // 시간외 단일가 데이터 존재 여부 및 시장 상태(OPEN) 확인
-    const isOvertime = data.overMarketPriceInfo && data.overMarketPriceInfo.overMarketStatus === 'OPEN';
-    
-    let price, change, ratio;
-    
-    if (isOvertime) {
-      const overInfo = data.overMarketPriceInfo;
-      price = Number(String(overInfo.overPrice).replace(/,/g, '').trim());
-      change = Number(String(overInfo.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
-      ratio = parseFloat(overInfo.fluctuationsRatio) || 0;
-    } else {
-      price = Number(String(data.closePrice).replace(/,/g, '').trim());
-      change = Number(String(data.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
-      ratio = parseFloat(data.fluctuationsRatio) || 0;
-    }
+      const isOvertime = data.overMarketPriceInfo && data.overMarketPriceInfo.overMarketStatus === 'OPEN';
+      
+      let price, change, ratio;
+      
+      if (isOvertime) {
+        const overInfo = data.overMarketPriceInfo;
+        price = Number(String(overInfo.overPrice).replace(/,/g, '').trim());
+        change = Number(String(overInfo.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
+        ratio = parseFloat(overInfo.fluctuationsRatio) || 0;
+      } else {
+        price = Number(String(data.closePrice).replace(/,/g, '').trim());
+        change = Number(String(data.compareToPreviousClosePrice || '0').replace(/,/g, '').trim());
+        ratio = parseFloat(data.fluctuationsRatio) || 0;
+      }
 
-    return {
-      name: data.stockName || '',
-      price,
-      change,
-      ratio,
-      currency: 'KRW',
-      isOvertime,
-      marketStatus: data.marketStatus,
-      overMarketStatus: data.overMarketPriceInfo?.overMarketStatus
+      return {
+        name: data.stockName || '',
+        price,
+        change,
+        ratio,
+        currency: 'KRW',
+        isOvertime,
+        marketStatus: data.marketStatus,
+        overMarketStatus: data.overMarketPriceInfo?.overMarketStatus
+      };
     };
+
+    return getCachedOrFetch(stock, 'realtime', fetchFn);
   }
 
   async function fetchFavoritePriceInfo(stock) {
@@ -1052,6 +1095,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function drawSparkline(points, isTodayUp) {
     if (!sparklineCanvas) return;
+    sparklineCanvas.className = ''; // remove skeleton class
     const ctx = sparklineCanvas.getContext('2d');
     if (!ctx) return;
 
@@ -1130,21 +1174,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function fetchYahooPrice(stock) {
-    const res = await fetch(`/api/yahoo/v8/finance/chart/${encodeURIComponent(stock.code)}?interval=1d&range=2d`);
-    if (!res.ok) throw new Error('Yahoo Finance fetch failed');
+    const fetchFn = async () => {
+      const res = await fetch(`/api/yahoo/v8/finance/chart/${encodeURIComponent(stock.code)}?interval=1d&range=2d`);
+      if (!res.ok) throw new Error('Yahoo Finance fetch failed');
 
-    const data = await res.json();
-    const result = data.chart?.result?.[0];
-    if (!result) throw new Error('No chart result');
+      const data = await res.json();
+      const result = data.chart?.result?.[0];
+      if (!result) throw new Error('No chart result');
 
-    const meta = result.meta;
-    const price = meta.regularMarketPrice;
-    const prevClose = meta.previousClose || meta.chartPreviousClose || price;
-    const change = price - prevClose;
-    const ratio = prevClose ? (change / prevClose) * 100 : 0;
-    const currency = meta.currency || (stock.country === 'JP' ? 'JPY' : 'USD');
-    const marketTime = meta.regularMarketTime || null; // Unix timestamp (seconds)
-    return { price, change, ratio, currency, marketTime };
+      const meta = result.meta;
+      const price = meta.regularMarketPrice;
+      const prevClose = meta.previousClose || meta.chartPreviousClose || price;
+      const change = price - prevClose;
+      const ratio = prevClose ? (change / prevClose) * 100 : 0;
+      const currency = meta.currency || (stock.country === 'JP' ? 'JPY' : 'USD');
+      const marketTime = meta.regularMarketTime || null; // Unix timestamp (seconds)
+      return { price, change, ratio, currency, marketTime };
+    };
+
+    return getCachedOrFetch(stock, 'yahoo', fetchFn);
   }
 
   async function selectStock(stock) {
@@ -1160,14 +1208,34 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFavoritePanel();
 
     if (alertPanel) alertPanel.classList.add('hidden');
-    if (chartContainer) chartContainer.classList.add('hidden');
-    if (newsContainer) newsContainer.classList.add('hidden');
-    if (newsSummaryBox) {
-      newsSummaryBox.innerHTML = '';
-      newsSummaryBox.className = 'news-summary-box loading';
-      newsSummaryBox.textContent = '뉴스 요약 분석 중...';
+    
+    // 차트는 로딩 중일 때 스켈레톤으로 표시하기 위해 hidden 제거 후 캔버스 영역에 스켈레톤 클래스 적용
+    if (chartContainer) {
+      chartContainer.classList.remove('hidden');
+      const ctx = sparklineCanvas.getContext('2d');
+      ctx.clearRect(0, 0, sparklineCanvas.width, sparklineCanvas.height);
+      sparklineCanvas.className = 'chart-skeleton';
     }
-    if (newsList) newsList.innerHTML = '';
+    
+    if (newsContainer) {
+      newsContainer.classList.remove('hidden');
+    }
+    
+    if (newsSummaryBox) {
+      newsSummaryBox.innerHTML = `
+        <div class="skeleton-box news-skeleton-summary"></div>
+        <div class="skeleton-box news-skeleton-summary" style="width: 85%;"></div>
+      `;
+      newsSummaryBox.className = 'news-summary-box';
+    }
+    
+    if (newsList) {
+      newsList.innerHTML = `
+        <div class="skeleton-box news-skeleton-item"></div>
+        <div class="skeleton-box news-skeleton-item" style="width: 90%;"></div>
+        <div class="skeleton-box news-skeleton-item" style="width: 95%;"></div>
+      `;
+    }
     
     if (alertToggle) {
       const isFav = isFavorite(stock);
@@ -1201,7 +1269,8 @@ document.addEventListener('DOMContentLoaded', () => {
       alertPriceUnit.textContent = stock.country === 'JP' ? 'JPY' : stock.country === 'US' ? 'USD' : 'KRW';
     }
 
-    priceEl.textContent = '로딩 중...';
+    priceEl.innerHTML = '<div class="skeleton-box price-skeleton"></div>';
+    priceChangeEl.innerHTML = '<div class="skeleton-box change-skeleton"></div>';
     priceChangeEl.className = 'stock-price-change';
     changeIndicatorEl.textContent = '';
     changeValEl.textContent = '';
@@ -1836,6 +1905,96 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 환율은 1시간마다 갱신 (API 갱신 주기에 맞춤)
   setInterval(loadExchangeRates, 60 * 60 * 1000);
+
+  // ==========================================================================
+  // Pull-To-Refresh Touch Gesture Implementation
+  // ==========================================================================
+  if (ptrContainer && ptrText) {
+    let ptrStartY = 0;
+    let ptrStartX = 0;
+    let ptrActive = false;
+    let ptrRefreshing = false;
+
+    window.addEventListener('touchstart', (e) => {
+      // 스크롤이 탑에 있고, 세션이 리프레시 중이 아닐 때만 시작
+      if (window.scrollY === 0 && !ptrRefreshing) {
+        const touch = e.touches[0];
+        ptrStartY = touch.pageY;
+        ptrStartX = touch.pageX;
+        ptrActive = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!ptrActive || ptrRefreshing) return;
+
+      const touch = e.touches[0];
+      const distY = touch.pageY - ptrStartY;
+      const distX = touch.pageX - ptrStartX;
+
+      // 아래로 당기는 방향이며 세로 제스처가 우세한 경우
+      if (distY > 0 && Math.abs(distY) > Math.abs(distX)) {
+        // 모바일 브라우저의 기본 당겨서 새로고침 동작 방지
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+
+        const height = Math.min(60, distY * 0.4);
+        ptrContainer.style.height = `${height}px`;
+        ptrContainer.classList.add('active');
+
+        if (height >= 20) { // threshold(20px 실측값 기준, distY * 0.4가 20px이 되는 지점은 distY가 50px일 때)
+          ptrText.textContent = 'RELEASE TO REFRESH...';
+          ptrText.style.color = '#ff0055'; // 상승 네온 칼라
+        } else {
+          ptrText.textContent = 'PULL TO REFRESH...';
+          ptrText.style.color = '#00ffcc'; // 시안 네온 칼라
+        }
+      } else {
+        // 위로 밀거나 가로 스크롤 시 리셋
+        ptrActive = false;
+        ptrContainer.style.height = '0px';
+        ptrContainer.classList.remove('active');
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', async () => {
+      if (!ptrActive || ptrRefreshing) return;
+      ptrActive = false;
+
+      const currentHeight = parseFloat(ptrContainer.style.height) || 0;
+
+      if (currentHeight >= 20) {
+        ptrRefreshing = true;
+        ptrText.textContent = 'REFRESHING...';
+        ptrText.style.color = '#bd00ff'; // 보라 네온
+        ptrContainer.style.height = '45px'; // 로딩 중 높이 고정
+
+        try {
+          // 병렬로 즐겨찾기, 테마보드, 환율 데이터 일제히 새로고침
+          await Promise.allSettled([
+            refreshFavoriteAlerts(),
+            loadThemeBoard(),
+            loadExchangeRates()
+          ]);
+        } catch (err) {
+          console.warn('Pull-to-refresh reload failed:', err);
+        } finally {
+          // 완료 피드백을 조금 유지한 후 부드럽게 닫기
+          setTimeout(() => {
+            ptrContainer.style.height = '0px';
+            ptrContainer.classList.remove('active');
+            ptrRefreshing = false;
+          }, 600);
+        }
+      } else {
+        // 임계값 미만일 땐 닫기
+        ptrContainer.style.height = '0px';
+        ptrContainer.classList.remove('active');
+      }
+    }, { passive: true });
+  }
+
   // Vercel Analytics 동적 런타임 주입 (Vite 빌드 시 에러 방지)
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     const analyticsScript = document.createElement('script');

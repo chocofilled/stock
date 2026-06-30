@@ -1942,3 +1942,97 @@ button:active,
   margin-top: 10px !important;
   padding-top: 10px !important;
 }
+
+/* ==========================================================================
+   8-Bit Retro Loading Skeleton
+   ========================================================================== */
+.skeleton-box {
+  background: #2a2d42 !important;
+  border-radius: 0 !important;
+  border: 1px solid #3a3d52 !important;
+  position: relative;
+  overflow: hidden;
+  animation: skeleton-pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+
+.news-skeleton-summary {
+  height: 48px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.news-skeleton-item {
+  height: 32px;
+  width: 100%;
+  margin-bottom: 6px;
+  border: 1px solid #3a3d52;
+  box-shadow: 2px 2px 0px #000000;
+  background: #181b30;
+}
+
+.price-skeleton {
+  display: inline-block;
+  width: 140px;
+  height: 28px;
+  margin-bottom: 4px;
+}
+
+.change-skeleton {
+  display: inline-block;
+  width: 100px;
+  height: 18px;
+}
+
+.chart-skeleton {
+  height: 110px;
+  width: 100%;
+  border: 2px dashed #ffffff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888899;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  background: #111424;
+}
+
+/* ==========================================================================
+   Pull-To-Refresh Indicator
+   ========================================================================== */
+.ptr-container {
+  height: 0;
+  overflow: hidden;
+  background: #111424 !important;
+  border-bottom: 0px solid #ffffff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: height 0.15s ease, border-width 0.15s ease;
+  font-family: 'Press Start 2P', 'DungGeunMo', monospace;
+  font-size: 10px;
+  color: #00ffcc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ptr-container.active {
+  border-bottom: 2px solid #ffffff !important;
+}
+
+.ptr-text {
+  font-weight: bold;
+}
+

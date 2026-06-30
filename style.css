@@ -20,10 +20,10 @@
   
   --text-primary: #ffffff;
   --text-secondary: #c5c6c7;
-  --text-muted: #00ffcc;
+  --text-muted: #00aaff;
   
   --accent-purple: #bd00ff;
-  --accent-cyan: #00ffcc;
+  --accent-cyan: #00aaff;
   
   --gradient-text: linear-gradient(90deg, var(--accent-purple) 0%, var(--accent-cyan) 100%);
   --gradient-btn: #1f2833;
@@ -913,9 +913,11 @@ body {
 }
 
 .favorites-order-toggle.active {
-  border-color: #00ffcc !important;
-  box-shadow: 3px 3px 0px #00ffcc !important;
-  color: #00ffcc !important;
+  border-color: var(--win-shadow-light) var(--win-light) var(--win-light) var(--win-shadow-light) !important;
+  box-shadow: none !important;
+  color: #000080 !important; /* 가독성 높은 남색 완료 버튼 */
+  background: var(--win-gray) !important;
+  padding: 5px 7px 3px 9px !important; /* 물리적으로 눌린 느낌 */
 }
 
 .favorites-list {
@@ -1891,8 +1893,8 @@ button:active,
 .theme-item.active {
   filter: none !important;
   opacity: 1 !important;
-  border-color: #00ffcc !important; /* 네온 시안 테두리 */
-  box-shadow: 3px 3px 0px #00ffcc !important; /* 네온 시안 입체 그림자 */
+  border-color: #ff0055 !important; /* 상승 빨강 테두리 */
+  box-shadow: 3px 3px 0px #000000 !important; /* 클래식 그림자 */
   background: #1b1e2c !important;
 }
 
@@ -2545,6 +2547,44 @@ body {
   border-color: #000080 !important; /* 액티브는 남색 테두리 고정 */
   box-shadow: none !important;
   outline: none !important;
+}
+
+/* 메인화면 새로고침 버튼 옆 8비트 아케이드 LED 표시등 영역 */
+.favorites-panel-toggle-dots {
+  position: static !important;
+  transform: none !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 4px !important;
+  background: var(--win-gray) !important;
+  border: 2px solid !important;
+  border-color: var(--win-shadow-light) var(--win-light) var(--win-light) var(--win-shadow-light) !important; /* Inset Bevel */
+  padding: 3px 4px !important;
+  height: 18px !important;
+  box-sizing: border-box !important;
+  margin-left: 2px !important;
+}
+
+.favorites-panel-toggle-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 0 !important; /* 사각형 픽셀 LED */
+  border: 1px solid #404040 !important;
+  background: #2a2a2a !important; /* 꺼진 상태 (회색) */
+  box-sizing: border-box !important;
+}
+
+/* 상승 알림 도트 (빨강) */
+.favorites-panel-toggle-dot--up.visible {
+  background: #ff0055 !important;
+  border-color: #ff0055 !important;
+}
+
+/* 하락 알림 도트 (파랑) */
+.favorites-panel-toggle-dot--down.visible {
+  background: #00aaff !important;
+  border-color: #00aaff !important;
 }
 
 

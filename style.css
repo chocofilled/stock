@@ -2031,9 +2031,11 @@ body {
   border: 1px solid !important;
   border-color: var(--win-light) var(--win-shadow-light) var(--win-shadow-light) var(--win-light) !important;
   padding: 0 !important;
-  position: relative !important;
   cursor: pointer !important;
   box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .title-bar-controls button:active {
@@ -2042,34 +2044,31 @@ body {
 
 .title-bar-controls button[aria-label="Minimize"]::after {
   content: '';
-  position: absolute;
-  bottom: 3px;
-  left: 4px;
   width: 6px;
   height: 2px;
   background: #000000;
+  display: block;
 }
 
 .title-bar-controls button[aria-label="Maximize"]::after {
   content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 8px;
-  height: 6px;
+  width: 7px;
+  height: 5px;
   border: 1px solid #000000;
   border-top-width: 2px;
+  display: block;
+  box-sizing: border-box;
 }
 
 /* 닫기 ❌ 버튼 */
 .title-bar-controls button[aria-label="Close"]::after {
   content: '✕';
-  font-size: 9px;
+  font-family: monospace, sans-serif;
+  font-size: 8px;
   font-weight: bold;
   color: #000000;
-  position: absolute;
-  top: -1px;
-  left: 3px;
+  display: block;
+  line-height: 1;
 }
 
 /* 4. 메뉴바 */
@@ -2449,6 +2448,14 @@ body {
 /* 차트 최근 기간 텍스트 가시성 보강 */
 .chart-period-val {
   color: #333333 !important;
+}
+
+/* 환율 갱신 시간 표시색 개선 (가독성 높은 클래식 윈도우 네이비) */
+.exchange-meta {
+  color: #000080 !important;
+  font-weight: bold !important;
+  font-size: 10px !important;
+  margin-top: 4px !important;
 }
 
 

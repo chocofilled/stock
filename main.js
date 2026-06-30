@@ -607,9 +607,17 @@ document.addEventListener('DOMContentLoaded', () => {
         row.classList.remove('dragging');
         const currentItems = Array.from(favoriteList.querySelectorAll('.favorite-item'));
         const newFavoriteStocks = [];
+        const seen = new Set();
         currentItems.forEach((itemEl) => {
           const origIdx = parseInt(itemEl.dataset.originalIndex, 10);
-          newFavoriteStocks.push(favoriteStocks[origIdx]);
+          const item = favoriteStocks[origIdx];
+          if (item) {
+            const key = getStockKey(item);
+            if (!seen.has(key)) {
+              seen.add(key);
+              newFavoriteStocks.push(item);
+            }
+          }
         });
         favoriteStocks = newFavoriteStocks;
         saveFavoriteStocks();
@@ -687,9 +695,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
           const currentItems = Array.from(favoriteList.querySelectorAll('.favorite-item'));
           const newFavoriteStocks = [];
+          const seen = new Set();
           currentItems.forEach((itemEl) => {
             const origIdx = parseInt(itemEl.dataset.originalIndex, 10);
-            newFavoriteStocks.push(favoriteStocks[origIdx]);
+            const item = favoriteStocks[origIdx];
+            if (item) {
+              const key = getStockKey(item);
+              if (!seen.has(key)) {
+                seen.add(key);
+                newFavoriteStocks.push(item);
+              }
+            }
           });
           favoriteStocks = newFavoriteStocks;
           saveFavoriteStocks();
@@ -1873,6 +1889,7 @@ document.addEventListener('DOMContentLoaded', () => {
     stockPanelClose.addEventListener('click', closeCurrentStockPanel);
   }
 
+  saveFavoriteStocks(); // 초기 중복 필터링된 목록을 localStorage에 동기화
   syncFavoriteButton();
   renderFavoritePanel();
   refreshFavoriteAlerts();

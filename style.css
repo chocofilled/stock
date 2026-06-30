@@ -2262,7 +2262,7 @@ body {
 /* 10. 즐겨찾기 목록 */
 .favorites-list {
   background: #ffffff !important;
-  max-height: 200px !important;
+  max-height: 300px !important;
   overflow-y: auto !important;
 }
 
@@ -2272,7 +2272,7 @@ body {
   box-shadow: none !important;
   background: #ffffff !important;
   color: #000000 !important;
-  padding: 6px !important;
+  padding: 4px 6px !important;
   margin-bottom: 2px !important;
 }
 
@@ -2549,26 +2549,42 @@ body {
   outline: none !important;
 }
 
-/* 메인화면 새로고침 버튼 옆 8비트 아케이드 LED 표시등 영역 */
+/* 메인화면 새로고침 버튼 및 주변 공간 슬림화 */
+.top-actions {
+  padding: 2px 0 !important;
+  margin-bottom: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.favorites-refresh {
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+  min-width: 65px !important;
+  white-space: nowrap !important;
+}
+
+/* 메인화면 새로고침 버튼 옆 8비트 아케이드 LED 표시등 영역 슬림화 */
 .favorites-panel-toggle-dots {
   position: static !important;
   transform: none !important;
   display: inline-flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  gap: 4px !important;
+  gap: 3px !important;
   background: var(--win-gray) !important;
   border: 2px solid !important;
   border-color: var(--win-shadow-light) var(--win-light) var(--win-light) var(--win-shadow-light) !important; /* Inset Bevel */
-  padding: 3px 4px !important;
-  height: 18px !important;
+  padding: 1px 2px !important;
+  height: 14px !important;
   box-sizing: border-box !important;
   margin-left: 2px !important;
 }
 
 .favorites-panel-toggle-dot {
-  width: 8px !important;
-  height: 8px !important;
+  width: 6px !important;
+  height: 6px !important;
   border-radius: 0 !important; /* 사각형 픽셀 LED */
   border: 1px solid #404040 !important;
   background: #2a2a2a !important; /* 꺼진 상태 (회색) */

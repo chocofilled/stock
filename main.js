@@ -1034,7 +1034,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function fetchYahooPrice(stock) {
-    const res = await fetch(`/api/yahoo/v8/finance/chart/${encodeURIComponent(stock.code)}?interval=5m&range=1d`);
+    const res = await fetch(`/api/yahoo/v8/finance/chart/${encodeURIComponent(stock.code)}?interval=1d&range=2d`);
     if (!res.ok) throw new Error('Yahoo Finance fetch failed');
 
     const data = await res.json();
@@ -1743,13 +1743,10 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshFavoriteAlerts();
   loadThemeBoard();
   
-  // 환율 표기 시작
-  loadExchangeRates();
   
   setInterval(() => {
     refreshFavoriteAlerts();
     loadThemeBoard();
-    loadExchangeRates();
   }, 5 * 60 * 1000);
   // Vercel Analytics 동적 런타임 주입 (Vite 빌드 시 에러 방지)
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {

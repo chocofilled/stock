@@ -1496,59 +1496,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }).format(date);
   }
 
+
   async function loadExchangeRates() {
     try {
-      // 야후 API로 달러, 엔화 환율 개별 조회
-      const usdData = await fetchYahooPrice({ code: 'USDKRW=X', country: 'US' });
-      // 엔화(JPYKRW=X)의 경우 1엔당 원화 가격이 오므로, 국내 관례인 100엔당 원화 가격으로 환산하기 위해 값에 100을 곱합니다.
-      const jpyData = await fetchYahooPrice({ code: 'JPYKRW=X', country: 'JP' });
-      
-      const usdRate = usdData.price;
-      const jpyRate = jpyData.price * 100; // 100엔당 원화로 변환
+      // exchangerate.fun: 무료 · 키 없음 · 1시간 갱신
+      const res = await fetch('/api/exchangefun/latest?base=USD&symbols=KRW,JPY');
+      if (!res.ok) throw new Error('exchangerate.fun fetch failed');
+      const data = await res.json();
+
+      const usdRate = data.rates?.KRW;
+      const jpyRate = data.rates?.JPY ? (1 / data.rates.JPY) * 100 * usdRate / usdRate * data.rates.KRW / data.rates.JPY * 100 : null;
+      // JPY: 1달러당 엔 → 100엔당 원 = (KRW/USD) / (JPY/USD) * 100
+      const jpy100Rate = usdRate / data.rates.JPY * 100;
 
       // USD 요소 업데이트
       const usdRateEl = document.getElementById('usd-rate');
       const usdChangeEl = document.getElementById('usd-change');
-      if (usdRateEl) {
+      if (usdRateEl && usdRate) {
         usdRateEl.textContent = `${usdRate.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KRW`;
       }
-      if (usdChangeEl) {
-        const sign = usdData.ratio >= 0 ? '+' : '';
-        usdChangeEl.textContent = ` (${sign}${usdData.ratio.toFixed(2)}%)`;
-        usdChangeEl.className = 'exchange-change ' + (usdData.ratio > 0 ? 'up' : usdData.ratio < 0 ? 'down' : 'flat');
-      }
+      if (usdChangeEl) usdChangeEl.textContent = '';
 
-      // JPY 요소 업데이트
+      // JPY 요소 업데이트 (100엔당 원화)
       const jpyRateEl = document.getElementById('jpy-rate');
       const jpyChangeEl = document.getElementById('jpy-change');
-      if (jpyRateEl) {
-        jpyRateEl.textContent = `${jpyRate.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KRW`;
+      if (jpyRateEl && jpy100Rate) {
+        jpyRateEl.textContent = `${jpy100Rate.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KRW`;
       }
-      if (jpyChangeEl) {
-        const sign = jpyData.ratio >= 0 ? '+' : '';
-        jpyChangeEl.textContent = ` (${sign}${jpyData.ratio.toFixed(2)}%)`;
-        jpyChangeEl.className = 'exchange-change ' + (jpyData.ratio > 0 ? 'up' : jpyData.ratio < 0 ? 'down' : 'flat');
-      }
+      if (jpyChangeEl) jpyChangeEl.textContent = '';
 
+      // 시각: API의 timestamp 필드 (Unix 초)
       const updatedEl = document.getElementById('exchange-updated');
-      if (updatedEl) {
-        // usdData.marketTime 기준 (없으면 jpyData.marketTime, 그도 없으면 현재시각 fallback)
-        const rawTime = usdData.marketTime || jpyData.marketTime || null;
-        let timeStr;
-        if (rawTime) {
-          const marketDate = new Date(rawTime * 1000);
-          timeStr = new Intl.DateTimeFormat('ko-KR', {
-            timeZone: 'Asia/Seoul',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          }).format(marketDate);
-        } else {
-          const now = new Date();
-          timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        }
+      if (updatedEl && data.timestamp) {
+        const timeStr = new Intl.DateTimeFormat('ko-KR', {
+          timeZone: 'Asia/Seoul',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        }).format(new Date(data.timestamp * 1000));
         updatedEl.textContent = `Updated at: ${timeStr} KST`;
       }
     } catch (err) {
@@ -1743,11 +1730,16 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshFavoriteAlerts();
   loadThemeBoard();
   
+  // 환율 표기 시작 (exchangerate.fun · 1시간 갱신)
+  loadExchangeRates();
   
   setInterval(() => {
     refreshFavoriteAlerts();
     loadThemeBoard();
   }, 5 * 60 * 1000);
+
+  // 환율은 1시간마다 갱신 (API 갱신 주기에 맞춤)
+  setInterval(loadExchangeRates, 60 * 60 * 1000);
   // Vercel Analytics 동적 런타임 주입 (Vite 빌드 시 에러 방지)
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     const analyticsScript = document.createElement('script');

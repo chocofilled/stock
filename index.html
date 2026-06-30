@@ -73,7 +73,26 @@
           <div id="favorites-list" class="favorites-list"></div>
         </section>
 
-        <div class="exchange-box" id="exchange-box" style="display:none"></div>
+        <div class="exchange-box" id="exchange-box">
+          <div class="exchange-row">
+            <div class="exchange-item" id="usd-item">
+              <div class="exchange-info">
+                <span class="exchange-label">USD</span>
+                <span class="exchange-rate" id="usd-rate"><span class="rate-loading"></span></span>
+                <span class="exchange-change" id="usd-change"></span>
+              </div>
+            </div>
+            <div class="exchange-separator"></div>
+            <div class="exchange-item" id="jpy-item">
+              <div class="exchange-info">
+                <span class="exchange-label">JPY</span>
+                <span class="exchange-rate" id="jpy-rate"><span class="rate-loading"></span></span>
+                <span class="exchange-change" id="jpy-change"></span>
+              </div>
+            </div>
+          </div>
+          <div class="exchange-meta" id="exchange-updated"></div>
+        </div>
 
         <div class="search-section">
           <div class="search-container">

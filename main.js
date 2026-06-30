@@ -33,6 +33,54 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeBoard = document.getElementById('theme-board');
   const searchSection = document.querySelector('.search-section');
   const exchangeBox = document.getElementById('exchange-box');
+  const themeTooltipPanel = document.getElementById('theme-tooltip-panel');
+  const themeDataCache = new Map();
+  let exchangeBoxWasVisible = false;
+
+  function showThemeTooltip(themeId) {
+    if (!themeTooltipPanel || !exchangeBox) return;
+    const data = themeDataCache.get(themeId);
+    if (!data) return;
+
+    const { name, avgChange, details } = data;
+    const avgColor = avgChange > 0 ? '#ff0055' : (avgChange < 0 ? '#00aaff' : '#ffffff');
+    let html = `<div style="text-align: center; font-weight: bold; border-bottom: 1px dashed #777788; margin-bottom: 8px; padding-bottom: 6px;">`;
+    html += `${name} <span style="color: ${avgColor}">${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%</span>`;
+    html += `</div>`;
+
+    if (details && details.length > 0) {
+      html += `<div style="display: grid; grid-template-columns: auto 1fr auto; column-gap: 16px; row-gap: 6px; font-size: 11px; align-items: center; width: 100%;">`;
+      html += details.map(d => {
+        const formattedPrice = d.price !== undefined ? d.price.toLocaleString('ko-KR') + '원' : '로딩 실패';
+        const sign = d.ratio >= 0 ? '+' : '';
+        const color = d.ratio > 0 ? '#ff0055' : (d.ratio < 0 ? '#00aaff' : '#ffffff');
+        return `<span style="color: #cccccc; text-align: left;">${d.name}</span>` +
+               `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 10px;">${formattedPrice}</span>` +
+               `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 10px;">(${sign}${d.ratio.toFixed(2)}%)</span>`;
+      }).join('');
+      html += `</div>`;
+    } else {
+      html += `<div style="text-align: center; color: #777788; padding: 10px 0;">데이터를 불러오는 중입니다...</div>`;
+    }
+
+    themeTooltipPanel.innerHTML = html;
+
+    if (themeTooltipPanel.style.display !== 'flex') {
+      exchangeBoxWasVisible = (exchangeBox.style.display !== 'none');
+    }
+
+    exchangeBox.style.display = 'none';
+    themeTooltipPanel.style.display = 'flex';
+  }
+
+  function hideThemeTooltip() {
+    if (!themeTooltipPanel || !exchangeBox) return;
+    themeTooltipPanel.style.display = 'none';
+    if (exchangeBoxWasVisible) {
+      exchangeBox.style.display = '';
+    }
+  }
+
   const favoritesOrderToggleBtn = document.getElementById('favorites-order-toggle');
 
   const chartContainer = document.getElementById('stock-chart-container');
@@ -77,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadThemeBoard() {
     if (!themeBoard) return;
     
-    // 1. 초기 로딩 시 흑백 구조 선마운트 (툴팁 상자 동적 삽입)
+    // 1. 초기 로딩 시 흑백 구조 선마운트
     if (themeBoard.children.length === 0) {
       themeBoard.innerHTML = '';
       RETRO_THEMES.forEach((theme) => {
@@ -90,55 +138,37 @@ document.addEventListener('DOMContentLoaded', () => {
         iconContainer.className = 'theme-item-icon';
         iconContainer.innerHTML = theme.icon;
 
-        // 커스텀 툴팁 엘리먼트 생성
-        const tooltip = document.createElement('div');
-        tooltip.className = 'theme-tooltip-box';
-        tooltip.textContent = `${theme.name} (로딩 중...)`;
-
         item.appendChild(iconContainer);
-        item.appendChild(tooltip);
 
-        // 툴팁 위치 보정 함수 (화면 잘림 방지)
-        const adjustTooltip = () => {
-          tooltip.style.setProperty('display', 'block', 'important');
-          const rect = tooltip.getBoundingClientRect();
-          tooltip.style.removeProperty('display');
-
-          const parentRect = item.getBoundingClientRect();
-          const tooltipWidth = rect.width;
-          const currentLeft = parentRect.left + (parentRect.width / 2) - (tooltipWidth / 2);
-          const currentRight = parentRect.left + (parentRect.width / 2) + (tooltipWidth / 2);
-
-          if (currentLeft < 8) {
-            const diff = 8 - currentLeft;
-            tooltip.style.setProperty('left', `calc(50% + ${diff}px)`, 'important');
-            tooltip.style.setProperty('--arrow-offset', `${-diff}px`, 'important');
-          } else if (currentRight > window.innerWidth - 8) {
-            const diff = currentRight - (window.innerWidth - 8);
-            tooltip.style.setProperty('left', `calc(50% - ${diff}px)`, 'important');
-            tooltip.style.setProperty('--arrow-offset', `${diff}px`, 'important');
-          } else {
-            tooltip.style.setProperty('left', '50%', 'important');
-            tooltip.style.setProperty('--arrow-offset', '0px', 'important');
+        // PC 마우스 호버 리스너
+        item.addEventListener('mouseenter', () => {
+          const hasTouchActive = themeBoard.querySelector('.theme-item.touch-active');
+          if (!hasTouchActive) {
+            showThemeTooltip(theme.id);
           }
-        };
-        item.adjustTooltip = adjustTooltip;
+        });
+        item.addEventListener('mouseleave', () => {
+          const hasTouchActive = themeBoard.querySelector('.theme-item.touch-active');
+          if (!hasTouchActive) {
+            hideThemeTooltip();
+          }
+        });
 
-        // 모바일 터치 이벤트 바인딩 (터치 시 툴팁 고정 표시 및 잘림 방지)
+        // 모바일 터치 이벤트 바인딩 (터치 시 공용 툴팁 토글 표시)
         item.addEventListener('touchstart', (e) => {
           e.stopPropagation();
           const alreadyActive = item.classList.contains('touch-active');
+          
+          // 모든 터치 액티브 초기화
           themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
+          
           if (!alreadyActive) {
-            adjustTooltip();
             item.classList.add('touch-active');
+            showThemeTooltip(theme.id);
+          } else {
+            hideThemeTooltip();
           }
         }, { passive: true });
-
-        // 마우스 호버 시에도 위치 보정
-        item.addEventListener('mouseenter', () => {
-          adjustTooltip();
-        });
 
         themeBoard.appendChild(item);
       });
@@ -147,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.addEventListener('touchstart', (e) => {
         if (!e.target.closest('.theme-item')) {
           themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
+          hideThemeTooltip();
         }
       }, { passive: true });
     }
@@ -191,40 +222,20 @@ document.addEventListener('DOMContentLoaded', () => {
       // 4. 정렬 순서에 맞게 DOM 노드를 다시 붙이고 상태 갱신
       sortedResults.forEach((result) => {
         const { id, name, avgChange, details } = result;
+        
+        // 캐시 업데이트
+        themeDataCache.set(id, { name, avgChange, details });
+
         const item = themeBoard.querySelector(`[data-theme-id="${id}"]`);
         if (item) {
           const isUp = avgChange > 0;
           item.className = `theme-item ${isUp ? 'active' : 'gray'}`;
-          
-          const tooltip = item.querySelector('.theme-tooltip-box');
-          if (tooltip) {
-            const avgColor = avgChange > 0 ? '#ff0055' : (avgChange < 0 ? '#00aaff' : '#ffffff');
-            let html = `<div style="text-align: center; font-weight: bold; border-bottom: 1px dashed #777788; margin-bottom: 6px; padding-bottom: 4px;">`;
-            html += `${name} <span style="color: ${avgColor}">${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%</span>`;
-            html += `</div>`;
-
-            if (details && details.length > 0) {
-              html += `<div style="display: grid; grid-template-columns: auto auto auto; column-gap: 14px; row-gap: 5px; font-size: 10px; align-items: center;">`;
-              html += details.map(d => {
-                const formattedPrice = d.price !== undefined ? d.price.toLocaleString('ko-KR') + '원' : '로딩 실패';
-                const sign = d.ratio >= 0 ? '+' : '';
-                const color = d.ratio > 0 ? '#ff0055' : (d.ratio < 0 ? '#00aaff' : '#ffffff');
-                return `<span style="color: #cccccc; text-align: left;">${d.name}</span>` +
-                       `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 9px;">${formattedPrice}</span>` +
-                       `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 9px;">(${sign}${d.ratio.toFixed(2)}%)</span>`;
-              }).join('');
-              html += `</div>`;
-            } else {
-              html += `<div style="text-align: center; color: #777788;">데이터 없음</div>`;
-            }
-            tooltip.innerHTML = html;
-            if (item.classList.contains('touch-active') || item.matches(':hover')) {
-              if (typeof item.adjustTooltip === 'function') {
-                item.adjustTooltip();
-              }
-            }
-          }
           item.title = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)`;
+
+          // 활성화된 상태의 테마이면 공용 툴팁 패널도 실시간으로 다시 그리기
+          if (item.classList.contains('touch-active') || item.matches(':hover')) {
+            showThemeTooltip(id);
+          }
 
           // DOM의 맨 마지막으로 다시 붙임으로써 sorted 순서가 화면에 실시간 반영됨!
           themeBoard.appendChild(item);

@@ -1918,41 +1918,26 @@ button:active,
   shape-rendering: crispEdges !important;
 }
 
-/* 커스텀 툴팁 상자 (8-Bit 아케이드 테마) */
+/* 개별 툴팁 상자는 공용 패널을 사용하므로 표시하지 않음 */
 .theme-tooltip-box {
   display: none !important;
-  position: absolute !important;
-  bottom: 125% !important; /* 버튼 위로 띄움 */
-  left: 50% !important;
-  transform: translateX(-50%) !important;
+}
+
+/* 공용 테마 툴팁 패널 (8-Bit 아케이드 테마) */
+.theme-tooltip-panel {
+  display: flex !important;
+  flex-direction: column !important;
   background: #111424 !important;
-  color: #ffffff !important;
   border: 2px solid #ffffff !important;
-  padding: 8px 12px !important;
+  border-radius: 0 !important;
+  padding: 16px 20px !important;
+  margin-top: 10px !important;
+  margin-bottom: 36px !important;
+  box-shadow: 5px 5px 0px #000000 !important;
   font-family: 'DungGeunMo', sans-serif !important;
-  font-size: 11px !important;
-  white-space: nowrap !important;
-  z-index: 9999 !important;
-  box-shadow: 3px 3px 0px #000000 !important;
-  pointer-events: none !important; /* 마우스 간섭 방지 */
-}
-
-/* 툴팁 아래 뾰족한 도트 삼각형 지지대 */
-.theme-tooltip-box::after {
-  content: "" !important;
-  position: absolute !important;
-  top: 100% !important;
-  left: calc(50% + var(--arrow-offset, 0px)) !important;
-  transform: translateX(-50%) !important;
-  border-width: 4px !important;
-  border-style: solid !important;
-  border-color: #ffffff transparent transparent transparent !important;
-}
-
-/* 호버, 모바일 터치 액티브 시 툴팁 출력 */
-.theme-item:hover .theme-tooltip-box,
-.theme-item.touch-active .theme-tooltip-box {
-  display: block !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ==========================================================================

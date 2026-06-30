@@ -2333,4 +2333,92 @@ body {
   height: 6px !important;
 }
 
+/* ==========================================================================
+   High Contrast / Visibility Adjustments for White Background Components
+   ========================================================================== */
+/* 즐겨찾기 서브 텍스트(종목코드, 시장) 가시성 확보 */
+.favorite-item-meta span {
+  color: #555555 !important;
+}
+
+/* 즐겨찾기 시세 등락 비율 컬러 대비 조정 (진한 빨강/파랑) */
+.favorite-item-ratio.up {
+  color: #c00000 !important;
+}
+.favorite-item-ratio.down {
+  color: #0000c0 !important;
+}
+
+/* 검색 자동완성 드롭다운 텍스트 및 코드 컬러 확보 */
+.dropdown-item {
+  color: #000000 !important;
+}
+.dropdown-item-code {
+  color: #555555 !important;
+}
+
+/* 드롭다운 호버 시 가독성 확보 */
+.dropdown-item:hover .dropdown-item-code, 
+.dropdown-item.active .dropdown-item-code {
+  color: #dddddd !important;
+}
+
+/* 시장 뱃지 (KOSPI, KOSDAQ 등) 흰색 배경에서의 민트색 가독성 개선 */
+.market-tag {
+  border-radius: 0 !important;
+  font-size: 9px !important;
+  padding: 1px 4px !important;
+  font-weight: bold !important;
+}
+.market-tag.kospi {
+  background: #000080 !important;
+  color: #ffffff !important;
+  border: 1px solid #000040 !important;
+}
+.market-tag.kosdaq {
+  background: #008080 !important;
+  color: #ffffff !important;
+  border: 1px solid #004040 !important;
+}
+.market-tag.tse {
+  background: #800080 !important;
+  color: #ffffff !important;
+  border: 1px solid #400040 !important;
+}
+.market-tag.nasdaq, .market-tag.nyse, .market-tag.amex, .market-tag.us {
+  background: #1084d0 !important;
+  color: #ffffff !important;
+  border: 1px solid #084080 !important;
+}
+
+/* 뉴스 요약 및 목록 가시성 개선 */
+.news-list-item {
+  color: #000000 !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+}
+.news-item-title {
+  color: #000000 !important;
+}
+.news-item-meta {
+  color: #555555 !important;
+}
+.news-item-office {
+  color: #000080 !important; /* 남색 */
+}
+
+#news-summary-box {
+  color: #000000 !important;
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+}
+#news-summary-box li {
+  color: #000000 !important;
+}
+
+/* 차트 최근 기간 텍스트 가시성 보강 */
+.chart-period-val {
+  color: #333333 !important;
+}
+
+
 

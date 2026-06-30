@@ -533,6 +533,12 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdownList.innerHTML = '';
         syncFavoriteButton();
       }
+      // 즐겨찾기가 닫힐 때 메인화면 영역(검색창, 환율) 복원
+      if (searchSection) searchSection.style.display = '';
+      if (exchangeBox) {
+        exchangeBox.style.display = '';
+        delete exchangeBox.dataset.visibleBefore;
+      }
     }
   }
 
@@ -1966,8 +1972,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (currentHeight >= 20) {
         ptrRefreshing = true;
-        ptrText.textContent = 'REFRESHING...';
-        ptrText.style.color = '#bd00ff'; // 보라 네온
+        // REFRESHING... 텍스트 대신 8비트 픽셀 스켈레톤 바들 삽입
+        ptrText.innerHTML = `
+          <div style="display: flex; gap: 6px; align-items: center; justify-content: center; height: 16px;">
+            <div class="skeleton-box" style="width: 24px; height: 8px; border: 1px solid #bd00ff !important;"></div>
+            <div class="skeleton-box" style="width: 56px; height: 8px; border: 1px solid #bd00ff !important;"></div>
+            <div class="skeleton-box" style="width: 36px; height: 8px; border: 1px solid #bd00ff !important;"></div>
+          </div>
+        `;
         ptrContainer.style.height = '45px'; // 로딩 중 높이 고정
 
         try {
@@ -1985,6 +1997,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ptrContainer.style.height = '0px';
             ptrContainer.classList.remove('active');
             ptrRefreshing = false;
+            // 텍스트 원래대로 복원
+            ptrText.textContent = 'PULL TO REFRESH...';
+            ptrText.style.color = '#00ffcc';
           }, 600);
         }
       } else {

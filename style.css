@@ -2348,19 +2348,46 @@ body {
   color: #0000c0 !important;
 }
 
-/* 즐겨찾기 항목 액티브 및 호버 시: 남색 배경에 흰색 글씨로 완벽 반전 하이라이트 */
-.favorite-item.active, .favorite-item:hover {
+/* 즐겨찾기 항목 액티브 시: 남색 배경에 흰색 글씨로 완벽 반전 하이라이트 */
+.favorite-item.active {
   background: #000080 !important;
   border-color: #000080 !important;
 }
-.favorite-item.active *, .favorite-item:hover * {
+.favorite-item.active * {
   color: #ffffff !important;
 }
-.favorite-item.active .favorite-item-ratio.up, .favorite-item:hover .favorite-item-ratio.up {
+.favorite-item.active .favorite-item-ratio.up {
   color: #ff88a8 !important; /* 남색 배경 위에서 가시성이 좋은 연분홍 */
 }
-.favorite-item.active .favorite-item-ratio.down, .favorite-item:hover .favorite-item-ratio.down {
+.favorite-item.active .favorite-item-ratio.down {
   color: #88ccff !important; /* 남색 배경 위에서 가시성이 좋은 연하늘 */
+}
+
+/* 호버 하이라이트: 모바일 스티키 호버 방지를 위해 호버를 미디어로 제한 */
+@media (hover: hover) {
+  .favorite-item:hover {
+    background: #000080 !important;
+    border-color: #000080 !important;
+  }
+  .favorite-item:hover * {
+    color: #ffffff !important;
+  }
+  .favorite-item:hover .favorite-item-ratio.up {
+    color: #ff88a8 !important;
+  }
+  .favorite-item:hover .favorite-item-ratio.down {
+    color: #88ccff !important;
+  }
+}
+
+/* 우측 상단 즐겨찾기 폴더/패널 버튼 아이콘 (노란색 픽셀 별표) */
+.title-bar-controls button#favorites-panel-toggle::after {
+  content: '★' !important;
+  font-size: 10px !important;
+  color: #ffaa00 !important;
+  display: block !important;
+  line-height: 1 !important;
+  font-family: monospace, sans-serif !important;
 }
 
 /* 검색 자동완성 드롭다운 텍스트 및 코드 컬러 확보 */

@@ -1495,39 +1495,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }).format(date);
   }
 
-  async function fetchExchangeData() {
-    const urls = ['/api/exchange/v6/latest/USD', 'https://open.er-api.com/v6/latest/USD'];
-    for (const url of urls) {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-        const data = await res.json();
-        if (data.result !== 'success') throw new Error('API result not success');
-        return data;
-      } catch (e) {
-        // Try next source.
-      }
-    }
-    throw new Error('Exchange rate fetch failed');
-  }
-
   async function loadExchangeRates() {
     try {
-      const data = await fetchExchangeData();
-      const usdRate = data.rates.KRW;
-      const jpyRate = (data.rates.KRW / data.rates.JPY) * 100;
-      const rateUpdatedAt = formatExchangeUpdateTime(
-        data.time_last_update_utc || data.time_last_update_unix || data.time_next_update_utc || data.time_next_update_unix
-      );
+      // 야후 API로 달러, 엔화 환율 개별 조회
+      const usdData = await fetchYahooPrice({ code: 'USDKRW=X', country: 'US' });
+      // 엔화(JPYKRW=X)의 경우 1엔당 원화 가격이 오므로, 국내 관례인 100엔당 원화 가격으로 환산하기 위해 값에 100을 곱합니다.
+      const jpyData = await fetchYahooPrice({ code: 'JPYKRW=X', country: 'JP' });
+      
+      const usdRate = usdData.price;
+      const jpyRate = jpyData.price * 100; // 100엔당 원화로 변환
 
-      document.getElementById('usd-rate').textContent = `${usdRate.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KRW`;
-      document.getElementById('jpy-rate').textContent = `${jpyRate.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KRW`;
+      // USD 요소 업데이트
+      const usdRateEl = document.getElementById('usd-rate');
+      const usdChangeEl = document.getElementById('usd-change');
+      if (usdRateEl) {
+        usdRateEl.textContent = `${usdRate.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KRW`;
+      }
+      if (usdChangeEl) {
+        const sign = usdData.ratio >= 0 ? '+' : '';
+        usdChangeEl.textContent = ` (${sign}${usdData.ratio.toFixed(2)}%)`;
+        usdChangeEl.className = 'exchange-change ' + (usdData.ratio > 0 ? 'up' : usdData.ratio < 0 ? 'down' : 'flat');
+      }
+
+      // JPY 요소 업데이트
+      const jpyRateEl = document.getElementById('jpy-rate');
+      const jpyChangeEl = document.getElementById('jpy-change');
+      if (jpyRateEl) {
+        jpyRateEl.textContent = `${jpyRate.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KRW`;
+      }
+      if (jpyChangeEl) {
+        const sign = jpyData.ratio >= 0 ? '+' : '';
+        jpyChangeEl.textContent = ` (${sign}${jpyData.ratio.toFixed(2)}%)`;
+        jpyChangeEl.className = 'exchange-change ' + (jpyData.ratio > 0 ? 'up' : jpyData.ratio < 0 ? 'down' : 'flat');
+      }
+
       const updatedEl = document.getElementById('exchange-updated');
-      if (updatedEl) updatedEl.textContent = rateUpdatedAt ? `Updated at: ${rateUpdatedAt} KST` : '';
+      if (updatedEl) {
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        updatedEl.textContent = `Updated at: ${timeStr} KST`;
+      }
     } catch (err) {
       console.error('Exchange rate error:', err);
-      document.getElementById('usd-rate').textContent = '연결 실패';
-      document.getElementById('jpy-rate').textContent = '연결 실패';
+      const usdRateEl = document.getElementById('usd-rate');
+      const jpyRateEl = document.getElementById('jpy-rate');
+      if (usdRateEl) usdRateEl.textContent = '연결 실패';
+      if (jpyRateEl) jpyRateEl.textContent = '연결 실패';
       const updatedEl = document.getElementById('exchange-updated');
       if (updatedEl) updatedEl.textContent = '';
     }
@@ -1714,12 +1727,13 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshFavoriteAlerts();
   loadThemeBoard();
   
-  // 환율 표기 숨김 및 호출 차단 (코드 미삭제, 주석 처리)
-  // loadExchangeRates();
+  // 환율 표기 시작
+  loadExchangeRates();
   
   setInterval(() => {
     refreshFavoriteAlerts();
     loadThemeBoard();
+    loadExchangeRates();
   }, 5 * 60 * 1000);
   // Vercel Analytics 동적 런타임 주입 (Vite 빌드 시 에러 방지)
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {

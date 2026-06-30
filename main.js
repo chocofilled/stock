@@ -502,8 +502,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setFavoritePanelOpen(open) {
     favoritePanelOpen = open;
-    if (!favoritePanel) return;
-    favoritePanel.classList.toggle('hidden', !open);
+    if (favoritePanel) {
+      favoritePanel.classList.toggle('hidden', !open);
+    }
     if (themeBoard) {
       themeBoard.classList.toggle('hidden', open);
     }
@@ -513,7 +514,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (open) {
       renderFavoritePanel();
+      if (exchangeBox) exchangeBox.style.display = 'none'; // 즐겨찾기 활성화 시 환율 숨김
     } else {
+      if (exchangeBox) exchangeBox.style.display = ''; // 즐겨찾기 닫힐 때 환율 노출
       // 즐겨찾기 패널 닫힐 때 → 순서 변경 모드 초기화
       favoritesOrderEditing = false;
       if (favoritesOrderToggleBtn) {
@@ -550,6 +553,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (openedFromFavorites) {
       openedFromFavorites = false;
       setFavoritePanelOpen(true);
+    } else {
+      // 일반 모드에서 상세 닫기 시 환율 박스 확실히 복원
+      if (exchangeBox) exchangeBox.style.display = '';
     }
   }
 
@@ -782,6 +788,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       favoriteList.appendChild(row);
     });
+
+    // 렌더링 직후 브라우저의 자동 포커스 복원 동작에 의해 
+    // 아래쪽 등 엉뚱한 종목에 포커스(보라색 테두리)가 남는 현상을 즉시 차단
+    if (document.activeElement && document.activeElement.tagName === 'BUTTON') {
+      document.activeElement.blur();
+    }
   }
 
   function toggleCurrentFavorite() {

@@ -2530,10 +2530,21 @@ body {
   margin-top: 4px !important;
 }
 
-/* 비활성 즐겨찾기 항목 포커스 시 보라색 테두리 강제 제거 (테두리 리셋) */
-.favorite-item:not(.active):focus {
+/* 즐겨찾기 비활성/활성 항목 포커스로 인한 보라색 네온 테두리 변색 오류 전면 차단 */
+.favorite-item:focus,
+.favorite-item:focus-visible,
+.favorite-item:not(.active):focus,
+.favorite-item:not(.active):focus-visible {
   border-color: #e0e0e0 !important;
   box-shadow: none !important;
+  outline: none !important;
+}
+
+.favorite-item.active:focus,
+.favorite-item.active:focus-visible {
+  border-color: #000080 !important; /* 액티브는 남색 테두리 고정 */
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 

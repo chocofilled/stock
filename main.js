@@ -1721,5 +1721,12 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshFavoriteAlerts();
     loadThemeBoard();
   }, 5 * 60 * 1000);
-  // setInterval(loadExchangeRates, 30 * 60 * 1000);
+  // Vercel Analytics 동적 런타임 주입 (Vite 빌드 시 에러 방지)
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    const analyticsScript = document.createElement('script');
+    analyticsScript.src = '/_vercel/insights/script.js';
+    analyticsScript.defer = true;
+    analyticsScript.setAttribute('data-sdknode', 'true');
+    document.body.appendChild(analyticsScript);
+  }
 });

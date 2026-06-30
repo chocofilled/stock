@@ -82,8 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!data) return;
 
     const { name, avgChange, details } = data;
-    const avgColor = avgChange > 0 ? '#c00000' : (avgChange < 0 ? '#0000c0' : '#000000');
-    let html = `<div style="text-align: center; font-weight: bold; border-bottom: 1px dashed #777788; margin-bottom: 8px; padding-bottom: 6px; color: #000000;">`;
+    const avgColor = avgChange > 0 ? '#ff0055' : (avgChange < 0 ? '#00aaff' : '#ffffff');
+    let html = `<div style="text-align: center; font-weight: bold; border-bottom: 1px dashed #777788; margin-bottom: 8px; padding-bottom: 6px;">`;
     html += `${name} <span style="color: ${avgColor}">${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%</span>`;
     html += `</div>`;
 
@@ -92,8 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
       html += details.map(d => {
         const formattedPrice = d.price !== undefined ? d.price.toLocaleString('ko-KR') + '원' : '로딩 실패';
         const sign = d.ratio >= 0 ? '+' : '';
-        const color = d.ratio > 0 ? '#c00000' : (d.ratio < 0 ? '#0000c0' : '#555555');
-        return `<span style="color: #000000; text-align: left; font-weight: bold;">${d.name}</span>` +
+        const color = d.ratio > 0 ? '#ff0055' : (d.ratio < 0 ? '#00aaff' : '#ffffff');
+        return `<span style="color: #cccccc; text-align: left;">${d.name}</span>` +
                `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 8px;">${formattedPrice}</span>` +
                `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 8px;">(${sign}${d.ratio.toFixed(2)}%)</span>`;
       }).join('');
@@ -502,9 +502,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setFavoritePanelOpen(open) {
     favoritePanelOpen = open;
-    if (favoritePanel) {
-      favoritePanel.classList.toggle('hidden', !open);
-    }
+    if (!favoritePanel) return;
+    favoritePanel.classList.toggle('hidden', !open);
     if (themeBoard) {
       themeBoard.classList.toggle('hidden', open);
     }
@@ -514,9 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (open) {
       renderFavoritePanel();
-      if (exchangeBox) exchangeBox.style.display = 'none'; // 즐겨찾기 활성화 시 환율 숨김
     } else {
-      if (exchangeBox) exchangeBox.style.display = ''; // 즐겨찾기 닫힐 때 환율 노출
       // 즐겨찾기 패널 닫힐 때 → 순서 변경 모드 초기화
       favoritesOrderEditing = false;
       if (favoritesOrderToggleBtn) {
@@ -534,6 +531,12 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdownList.innerHTML = '';
         syncFavoriteButton();
       }
+      // 즐겨찾기가 닫힐 때 메인화면 영역(검색창, 환율) 복원
+      if (searchSection) searchSection.style.display = '';
+      if (exchangeBox) {
+        exchangeBox.style.display = '';
+        delete exchangeBox.dataset.visibleBefore;
+      }
     }
   }
 
@@ -550,12 +553,18 @@ document.addEventListener('DOMContentLoaded', () => {
     dropdownList.innerHTML = '';
     syncFavoriteButton();
 
+    // 즐겨찾기 모드에서 열린 상세 패널이었다면 검색창/환율박스 다시 표시
+    if (openedFromFavorites) {
+      if (searchSection) searchSection.style.display = '';
+      if (exchangeBox && exchangeBox.dataset.visibleBefore === 'true') {
+        exchangeBox.style.display = '';
+        delete exchangeBox.dataset.visibleBefore;
+      }
+    }
+
     if (openedFromFavorites) {
       openedFromFavorites = false;
       setFavoritePanelOpen(true);
-    } else {
-      // 일반 모드에서 상세 닫기 시 환율 박스 확실히 복원
-      if (exchangeBox) exchangeBox.style.display = '';
     }
   }
 
@@ -598,17 +607,9 @@ document.addEventListener('DOMContentLoaded', () => {
         row.classList.remove('dragging');
         const currentItems = Array.from(favoriteList.querySelectorAll('.favorite-item'));
         const newFavoriteStocks = [];
-        const seen = new Set();
         currentItems.forEach((itemEl) => {
           const origIdx = parseInt(itemEl.dataset.originalIndex, 10);
-          const item = favoriteStocks[origIdx];
-          if (item) {
-            const key = getStockKey(item);
-            if (!seen.has(key)) {
-              seen.add(key);
-              newFavoriteStocks.push(item);
-            }
-          }
+          newFavoriteStocks.push(favoriteStocks[origIdx]);
         });
         favoriteStocks = newFavoriteStocks;
         saveFavoriteStocks();
@@ -686,17 +687,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
           const currentItems = Array.from(favoriteList.querySelectorAll('.favorite-item'));
           const newFavoriteStocks = [];
-          const seen = new Set();
           currentItems.forEach((itemEl) => {
             const origIdx = parseInt(itemEl.dataset.originalIndex, 10);
-            const item = favoriteStocks[origIdx];
-            if (item) {
-              const key = getStockKey(item);
-              if (!seen.has(key)) {
-                seen.add(key);
-                newFavoriteStocks.push(item);
-              }
-            }
+            newFavoriteStocks.push(favoriteStocks[origIdx]);
           });
           favoriteStocks = newFavoriteStocks;
           saveFavoriteStocks();
@@ -778,7 +771,12 @@ document.addEventListener('DOMContentLoaded', () => {
           e.preventDefault();
           return;
         }
-        row.blur(); // 포커스 아웃하여 보라색 스티키 테두리 잔존 버그 해결
+        // 드래그가 끝났을 때의 클릭 이벤트 발생을 방지하거나 구분
+        // dragend 직후 click이 바로 발생할 수 있으므로, 드래그 상태가 해제된 지 얼마 안 되었다면 동작을 막아야 할 수도 있음.
+        // 다만 row.classList.contains('dragging')는 이미 dragend에서 지워지므로 다른 방법이 필요할 수 있음.
+        // HTML5 drag 앤 drop에서는 drag 시 click이 보통 트리거되지 않지만, 브라우저에 따라 발생할 수도 있음.
+        // 확인 결과: HTML5 Drag start가 되면 dragend로 마무리되고, 마우스를 뗄 때 click 이벤트는 일반적으로 발생하지 않음 (드래그 마우스 다운 -> 이동 -> 업 은 클릭으로 인정 안 됨).
+        // 따라서 그냥 평소대로 selectStock을 하도록 둠.
         openedFromFavorites = true;
         // 즐겨찾기 패널은 유지하고 (setFavoritePanelOpen(false) 호출 안 함)
         // 테마보드는 이미 hidden 상태이므로 유지, 상세정보는 패널 아래쪽에 표시됨
@@ -788,12 +786,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       favoriteList.appendChild(row);
     });
-
-    // 렌더링 직후 브라우저의 자동 포커스 복원 동작에 의해 
-    // 아래쪽 등 엉뚱한 종목에 포커스(보라색 테두리)가 남는 현상을 즉시 차단
-    if (document.activeElement && document.activeElement.tagName === 'BUTTON') {
-      document.activeElement.blur();
-    }
   }
 
   function toggleCurrentFavorite() {
@@ -1122,8 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const width = rect.width;
     const height = rect.height;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width, height);
 
     const prices = points.map(p => p.price);
     const minVal = Math.min(...prices);
@@ -1267,6 +1258,15 @@ document.addEventListener('DOMContentLoaded', () => {
     changeValEl.textContent = '';
     changeRatioEl.textContent = '';
     infoPanel.classList.remove('hidden');
+
+    // 즐겨찾기 모드 중 종목 선택 시: 검색창과 환율박스를 숨기고 패널 아래에 상세정보 표시
+    if (openedFromFavorites) {
+      if (searchSection) searchSection.style.display = 'none';
+      if (exchangeBox && exchangeBox.style.display !== 'none') {
+        exchangeBox.dataset.visibleBefore = 'true';
+        exchangeBox.style.display = 'none';
+      }
+    }
 
     // 1. 필수 가격 정보 조회 (CORS 우회 로컬 프록시 / Vercel 연동)
     let priceInfo;
@@ -1872,7 +1872,6 @@ document.addEventListener('DOMContentLoaded', () => {
     stockPanelClose.addEventListener('click', closeCurrentStockPanel);
   }
 
-  saveFavoriteStocks(); // 초기 중복 필터링된 목록을 localStorage에 동기화
   syncFavoriteButton();
   renderFavoritePanel();
   refreshFavoriteAlerts();
@@ -1881,48 +1880,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // 환율 표기 시작 (exchangerate.fun · 1시간 갱신)
   loadExchangeRates();
   
-  // 1초 단위 타이머로 변경하여 상태 표시줄 정보 업데이트 및 5분(300초) 주기 갱신 실행
-  const refreshIntervalSec = 5 * 60; // 300s
-  let nextRefreshTime = Date.now() + refreshIntervalSec * 1000;
-  const refreshStatusEl = document.getElementById('refresh-status');
-  const statusBarFields = document.querySelectorAll('.status-bar-field');
-  const timeFieldEl = statusBarFields[statusBarFields.length - 1]; // 마지막 필드가 시계 영역
-
-  async function triggerPeriodicRefresh() {
-    if (refreshStatusEl) refreshStatusEl.textContent = '자동 갱신: 업데이트 중...';
-    try {
-      await Promise.allSettled([
-        refreshFavoriteAlerts(),
-        loadThemeBoard()
-      ]);
-    } catch (e) {
-      console.warn('Periodic refresh failed:', e);
-    }
-    nextRefreshTime = Date.now() + refreshIntervalSec * 1000;
-  }
-
   setInterval(() => {
-    const now = Date.now();
-    const remainSec = Math.max(0, Math.ceil((nextRefreshTime - now) / 1000));
-    
-    if (refreshStatusEl) {
-      const min = Math.floor(remainSec / 60);
-      const sec = remainSec % 60;
-      refreshStatusEl.textContent = `자동 갱신: ${min}분 ${String(sec).padStart(2, '0')}초 후`;
-    }
-
-    if (remainSec <= 0) {
-      triggerPeriodicRefresh();
-    }
-
-    // 시계 갱신 (KST 포맷)
-    if (timeFieldEl) {
-      const date = new Date();
-      const hh = String(date.getHours()).padStart(2, '0');
-      const mm = String(date.getMinutes()).padStart(2, '0');
-      timeFieldEl.textContent = `KST ${hh}:${mm}`;
-    }
-  }, 1000);
+    refreshFavoriteAlerts();
+    loadThemeBoard();
+  }, 5 * 60 * 1000);
 
   // 환율은 1시간마다 갱신 (API 갱신 주기에 맞춤)
   setInterval(loadExchangeRates, 60 * 60 * 1000);

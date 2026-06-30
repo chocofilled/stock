@@ -33,12 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeBoard = document.getElementById('theme-board');
   const searchSection = document.querySelector('.search-section');
   const exchangeBox = document.getElementById('exchange-box');
-  const themeTooltipPanel = document.getElementById('theme-tooltip-panel');
+  const exchangeMainContent = document.getElementById('exchange-main-content');
+  const exchangeTooltipContent = document.getElementById('exchange-tooltip-content');
   const themeDataCache = new Map();
-  let exchangeBoxWasVisible = false;
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
   function showThemeTooltip(themeId) {
-    if (!themeTooltipPanel || !exchangeBox) return;
+    if (!exchangeTooltipContent || !exchangeMainContent) return;
     const data = themeDataCache.get(themeId);
     if (!data) return;
 
@@ -63,33 +64,31 @@ document.addEventListener('DOMContentLoaded', () => {
       html += `<div style="text-align: center; color: #777788; padding: 10px 0;">데이터를 불러오는 중입니다...</div>`;
     }
 
-    themeTooltipPanel.innerHTML = html;
-
-    if (themeTooltipPanel.style.display !== 'flex') {
-      exchangeBoxWasVisible = (exchangeBox.style.display !== 'none');
-    }
-
-    exchangeBox.style.display = 'none';
-    themeTooltipPanel.style.display = 'flex';
+    exchangeTooltipContent.innerHTML = html;
+    exchangeMainContent.style.display = 'none';
+    exchangeTooltipContent.style.display = 'flex';
   }
 
   function hideThemeTooltip() {
-    if (!themeTooltipPanel || !exchangeBox) return;
-    themeTooltipPanel.style.display = 'none';
-    if (!favoritePanelOpen) {
-      exchangeBox.style.display = '';
-    }
+    if (!exchangeTooltipContent || !exchangeMainContent) return;
+    exchangeTooltipContent.style.display = 'none';
+    exchangeMainContent.style.display = '';
   }
 
-  // 툴팁 패널 자체를 클릭(터치)하면 툴팁을 닫도록 설정
-  if (themeTooltipPanel) {
-    themeTooltipPanel.addEventListener('click', (e) => {
+  // 툴팁 영역 자체를 클릭(터치)하면 툴팁을 닫도록 설정
+  if (exchangeTooltipContent) {
+    const handleTooltipClose = (e) => {
       e.stopPropagation();
       hideThemeTooltip();
       if (themeBoard) {
         themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
       }
-    });
+    };
+    if (isTouchDevice) {
+      exchangeTooltipContent.addEventListener('touchstart', handleTooltipClose, { passive: true });
+    } else {
+      exchangeTooltipContent.addEventListener('click', handleTooltipClose);
+    }
   }
 
   const favoritesOrderToggleBtn = document.getElementById('favorites-order-toggle');
@@ -130,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'food', name: 'K-푸드', stocks: ['003230', '004370', '001680', '097950', '017810'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="7" width="12" height="6" fill="#ff0055"/><rect x="3" y="13" width="10" height="1" fill="#ff0055"/><rect x="4" y="14" width="8" height="1" fill="#ff0055"/><rect x="3" y="6" width="10" height="1" fill="#ffe600"/><rect x="4" y="9" width="2" height="2" fill="#ffffff"/><rect x="10" y="9" width="2" height="2" fill="#ffffff"/><rect x="11" y="2" width="4" height="1" fill="#ffe600"/><rect x="9" y="3" width="3" height="1" fill="#ffe600"/><rect x="7" y="4" width="3" height="1" fill="#ffe600"/><rect x="5" y="5" width="3" height="1" fill="#ffe600"/></svg>` },
     { id: 'beauty', name: '화장품', stocks: ['090430', '192820', '161890', '278470', '214420'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="5" y="8" width="6" height="7" fill="#1b1e2c" stroke="#ffffff" stroke-width="1"/><rect x="6" y="9" width="4" height="1" fill="#ffe600"/><rect x="6" y="5" width="4" height="3" fill="#ff0055"/><rect x="6" y="4" width="3" height="1" fill="#ff0055"/><rect x="6" y="3" width="2" height="1" fill="#ff0055"/><rect x="8" y="5" width="1" height="2" fill="#ffffff"/></svg>` },
     { id: 'defense', name: '방산', stocks: ['012450', '079550', '064350', '047810', '103140'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="8" width="12" height="4" fill="#777788"/><rect x="3" y="12" width="10" height="2" fill="#111424"/><rect x="5" y="5" width="6" height="3" fill="#777788"/><rect x="10" y="3" width="4" height="2" fill="#ffe600"/><rect x="9" y="4" width="2" height="2" fill="#777788"/><rect x="4" y="12" width="1" height="1" fill="#ffffff"/><rect x="7" y="12" width="1" height="1" fill="#ffffff"/><rect x="10" y="12" width="1" height="1" fill="#ffffff"/></svg>` },
-    { id: 'ship', name: '조선/중공업', stocks: ['329180', '010140', '042660', '010620', '443060'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="0" y="13" width="16" height="3" fill="#00aaff"/><rect x="2" y="12" width="12" height="1" fill="#00ffcc"/><rect x="2" y="9" width="12" height="3" fill="#555566"/><rect x="1" y="8" width="12" height="1" fill="#ff0055"/><rect x="3" y="5" width="5" height="3" fill="#ffffff"/><rect x="5" y="4" width="2" height="1" fill="#ffffff"/><rect x="4" y="6" width="1" height="1" fill="#00ffcc"/><rect x="6" y="6" width="1" height="1" fill="#00ffcc"/><rect x="9" y="3" width="1" height="1" fill="#ffffff" opacity="0.6"/><rect x="10" y="1" width="2" height="2" fill="#ffffff" opacity="0.4"/></svg>` }
+    { id: 'ship', name: '조선/중공업', stocks: ['329180', '010140', '042660', '009540', '443060'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="0" y="13" width="16" height="3" fill="#00aaff"/><rect x="2" y="12" width="12" height="1" fill="#00ffcc"/><rect x="2" y="9" width="12" height="3" fill="#555566"/><rect x="1" y="8" width="12" height="1" fill="#ff0055"/><rect x="3" y="5" width="5" height="3" fill="#ffffff"/><rect x="5" y="4" width="2" height="1" fill="#ffffff"/><rect x="4" y="6" width="1" height="1" fill="#00ffcc"/><rect x="6" y="6" width="1" height="1" fill="#00ffcc"/><rect x="9" y="3" width="1" height="1" fill="#ffffff" opacity="0.6"/><rect x="10" y="1" width="2" height="2" fill="#ffffff" opacity="0.4"/></svg>` }
   ];
 
   async function loadThemeBoard() {
@@ -151,26 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         item.appendChild(iconContainer);
 
-        // PC 마우스 호버 리스너
-        item.addEventListener('mouseenter', () => {
-          const hasTouchActive = themeBoard.querySelector('.theme-item.touch-active');
-          if (!hasTouchActive) {
-            showThemeTooltip(theme.id);
-          }
-        });
-        item.addEventListener('mouseleave', () => {
-          const hasTouchActive = themeBoard.querySelector('.theme-item.touch-active');
-          if (!hasTouchActive) {
-            hideThemeTooltip();
-          }
-        });
-
-        // 모바일 터치 이벤트 바인딩 (터치 시 공용 툴팁 토글 표시)
-        item.addEventListener('touchstart', (e) => {
+        // 공통 토글 함수 (선택 시 열림, 한 번 더 선택 시 닫힘)
+        const toggleTooltip = (e) => {
           e.stopPropagation();
           const alreadyActive = item.classList.contains('touch-active');
-          
-          // 모든 터치 액티브 초기화
           themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
           
           if (!alreadyActive) {
@@ -179,18 +162,43 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             hideThemeTooltip();
           }
-        }, { passive: true });
+        };
+
+        if (isTouchDevice) {
+          item.addEventListener('touchstart', toggleTooltip, { passive: true });
+        } else {
+          item.addEventListener('click', toggleTooltip);
+          // PC용 호버 동작
+          item.addEventListener('mouseenter', () => {
+            const hasTouchActive = themeBoard.querySelector('.theme-item.touch-active');
+            if (!hasTouchActive) {
+              showThemeTooltip(theme.id);
+            }
+          });
+          item.addEventListener('mouseleave', () => {
+            const hasTouchActive = themeBoard.querySelector('.theme-item.touch-active');
+            if (!hasTouchActive) {
+              hideThemeTooltip();
+            }
+          });
+        }
 
         themeBoard.appendChild(item);
       });
 
-      // 문서 전체에 터치 리스너 1회 선언하여 뱃지 밖을 터치하면 툴팁 회수
-      document.addEventListener('touchstart', (e) => {
+      // 문서 전체에 터치/클릭 리스너 1회 선언하여 뱃지 밖을 터치/클릭하면 툴팁 회수
+      const handleOutsideClick = (e) => {
         if (!e.target.closest('.theme-item')) {
           themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
           hideThemeTooltip();
         }
-      }, { passive: true });
+      };
+
+      if (isTouchDevice) {
+        document.addEventListener('touchstart', handleOutsideClick, { passive: true });
+      } else {
+        document.addEventListener('click', handleOutsideClick);
+      }
     }
 
     try {

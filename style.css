@@ -1923,22 +1923,7 @@ button:active,
   display: none !important;
 }
 
-/* 공용 테마 툴팁 패널 (8-Bit 아케이드 테마) */
-.theme-tooltip-panel {
-  display: flex !important;
-  flex-direction: column !important;
-  background: #111424 !important;
-  border: 2px solid #ffffff !important;
-  border-radius: 0 !important;
-  padding: 16px 20px !important;
-  margin-top: 10px !important;
-  margin-bottom: 36px !important;
-  box-shadow: 5px 5px 0px #000000 !important;
-  font-family: 'DungGeunMo', sans-serif !important;
-  box-sizing: border-box !important;
-  width: 100% !important;
-  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
+
 
 /* ==========================================================================
    즐겨찾기 활성화 중 상세정보 패널 — 구분선 및 여백

@@ -98,15 +98,47 @@ document.addEventListener('DOMContentLoaded', () => {
         item.appendChild(iconContainer);
         item.appendChild(tooltip);
 
-        // 모바일 터치 이벤트 바인딩 (터치 시 툴팁 고정 표시)
+        // 툴팁 위치 보정 함수 (화면 잘림 방지)
+        const adjustTooltip = () => {
+          tooltip.style.setProperty('display', 'block', 'important');
+          const rect = tooltip.getBoundingClientRect();
+          tooltip.style.removeProperty('display');
+
+          const parentRect = item.getBoundingClientRect();
+          const tooltipWidth = rect.width;
+          const currentLeft = parentRect.left + (parentRect.width / 2) - (tooltipWidth / 2);
+          const currentRight = parentRect.left + (parentRect.width / 2) + (tooltipWidth / 2);
+
+          if (currentLeft < 8) {
+            const diff = 8 - currentLeft;
+            tooltip.style.setProperty('left', `calc(50% + ${diff}px)`, 'important');
+            tooltip.style.setProperty('--arrow-offset', `${-diff}px`, 'important');
+          } else if (currentRight > window.innerWidth - 8) {
+            const diff = currentRight - (window.innerWidth - 8);
+            tooltip.style.setProperty('left', `calc(50% - ${diff}px)`, 'important');
+            tooltip.style.setProperty('--arrow-offset', `${diff}px`, 'important');
+          } else {
+            tooltip.style.setProperty('left', '50%', 'important');
+            tooltip.style.setProperty('--arrow-offset', '0px', 'important');
+          }
+        };
+        item.adjustTooltip = adjustTooltip;
+
+        // 모바일 터치 이벤트 바인딩 (터치 시 툴팁 고정 표시 및 잘림 방지)
         item.addEventListener('touchstart', (e) => {
           e.stopPropagation();
           const alreadyActive = item.classList.contains('touch-active');
           themeBoard.querySelectorAll('.theme-item').forEach(el => el.classList.remove('touch-active'));
           if (!alreadyActive) {
+            adjustTooltip();
             item.classList.add('touch-active');
           }
         }, { passive: true });
+
+        // 마우스 호버 시에도 위치 보정
+        item.addEventListener('mouseenter', () => {
+          adjustTooltip();
+        });
 
         themeBoard.appendChild(item);
       });
@@ -166,15 +198,31 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const tooltip = item.querySelector('.theme-tooltip-box');
           if (tooltip) {
-            let tooltipContent = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)\n`;
+            const avgColor = avgChange > 0 ? '#ff0055' : (avgChange < 0 ? '#00aaff' : '#ffffff');
+            let html = `<div style="text-align: center; font-weight: bold; border-bottom: 1px dashed #777788; margin-bottom: 6px; padding-bottom: 4px;">`;
+            html += `${name} <span style="color: ${avgColor}">${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%</span>`;
+            html += `</div>`;
+
             if (details && details.length > 0) {
-              tooltipContent += details.map(d => {
+              html += `<div style="display: grid; grid-template-columns: auto auto auto; column-gap: 14px; row-gap: 5px; font-size: 10px; align-items: center;">`;
+              html += details.map(d => {
                 const formattedPrice = d.price !== undefined ? d.price.toLocaleString('ko-KR') + '원' : '로딩 실패';
                 const sign = d.ratio >= 0 ? '+' : '';
-                return ` - ${d.name}: ${formattedPrice} (${sign}${d.ratio.toFixed(2)}%)`;
-              }).join('\n');
+                const color = d.ratio > 0 ? '#ff0055' : (d.ratio < 0 ? '#00aaff' : '#ffffff');
+                return `<span style="color: #cccccc; text-align: left;">${d.name}</span>` +
+                       `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 9px;">${formattedPrice}</span>` +
+                       `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 9px;">(${sign}${d.ratio.toFixed(2)}%)</span>`;
+              }).join('');
+              html += `</div>`;
+            } else {
+              html += `<div style="text-align: center; color: #777788;">데이터 없음</div>`;
             }
-            tooltip.textContent = tooltipContent;
+            tooltip.innerHTML = html;
+            if (item.classList.contains('touch-active') || item.matches(':hover')) {
+              if (typeof item.adjustTooltip === 'function') {
+                item.adjustTooltip();
+              }
+            }
           }
           item.title = `${name} (${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%)`;
 

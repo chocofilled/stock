@@ -1928,10 +1928,10 @@ button:active,
   background: #111424 !important;
   color: #ffffff !important;
   border: 2px solid #ffffff !important;
-  padding: 5px 8px !important;
+  padding: 8px 12px !important;
   font-family: 'DungGeunMo', sans-serif !important;
   font-size: 11px !important;
-  white-space: pre !important;
+  white-space: nowrap !important;
   z-index: 9999 !important;
   box-shadow: 3px 3px 0px #000000 !important;
   pointer-events: none !important; /* 마우스 간섭 방지 */
@@ -1942,7 +1942,7 @@ button:active,
   content: "" !important;
   position: absolute !important;
   top: 100% !important;
-  left: 50% !important;
+  left: calc(50% + var(--arrow-offset, 0px)) !important;
   transform: translateX(-50%) !important;
   border-width: 4px !important;
   border-style: solid !important;

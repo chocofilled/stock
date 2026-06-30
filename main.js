@@ -531,12 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdownList.innerHTML = '';
         syncFavoriteButton();
       }
-      // 즐겨찾기가 닫힐 때 메인화면 영역(검색창, 환율) 복원
-      if (searchSection) searchSection.style.display = '';
-      if (exchangeBox) {
-        exchangeBox.style.display = '';
-        delete exchangeBox.dataset.visibleBefore;
-      }
     }
   }
 
@@ -552,15 +546,6 @@ document.addEventListener('DOMContentLoaded', () => {
     dropdownList.classList.add('hidden');
     dropdownList.innerHTML = '';
     syncFavoriteButton();
-
-    // 즐겨찾기 모드에서 열린 상세 패널이었다면 검색창/환율박스 다시 표시
-    if (openedFromFavorites) {
-      if (searchSection) searchSection.style.display = '';
-      if (exchangeBox && exchangeBox.dataset.visibleBefore === 'true') {
-        exchangeBox.style.display = '';
-        delete exchangeBox.dataset.visibleBefore;
-      }
-    }
 
     if (openedFromFavorites) {
       openedFromFavorites = false;
@@ -787,12 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
           e.preventDefault();
           return;
         }
-        // 드래그가 끝났을 때의 클릭 이벤트 발생을 방지하거나 구분
-        // dragend 직후 click이 바로 발생할 수 있으므로, 드래그 상태가 해제된 지 얼마 안 되었다면 동작을 막아야 할 수도 있음.
-        // 다만 row.classList.contains('dragging')는 이미 dragend에서 지워지므로 다른 방법이 필요할 수 있음.
-        // HTML5 drag 앤 drop에서는 drag 시 click이 보통 트리거되지 않지만, 브라우저에 따라 발생할 수도 있음.
-        // 확인 결과: HTML5 Drag start가 되면 dragend로 마무리되고, 마우스를 뗄 때 click 이벤트는 일반적으로 발생하지 않음 (드래그 마우스 다운 -> 이동 -> 업 은 클릭으로 인정 안 됨).
-        // 따라서 그냥 평소대로 selectStock을 하도록 둠.
+        row.blur(); // 포커스 아웃하여 보라색 스티키 테두리 잔존 버그 해결
         openedFromFavorites = true;
         // 즐겨찾기 패널은 유지하고 (setFavoritePanelOpen(false) 호출 안 함)
         // 테마보드는 이미 hidden 상태이므로 유지, 상세정보는 패널 아래쪽에 표시됨
@@ -1275,15 +1255,6 @@ document.addEventListener('DOMContentLoaded', () => {
     changeValEl.textContent = '';
     changeRatioEl.textContent = '';
     infoPanel.classList.remove('hidden');
-
-    // 즐겨찾기 모드 중 종목 선택 시: 검색창과 환율박스를 숨기고 패널 아래에 상세정보 표시
-    if (openedFromFavorites) {
-      if (searchSection) searchSection.style.display = 'none';
-      if (exchangeBox && exchangeBox.style.display !== 'none') {
-        exchangeBox.dataset.visibleBefore = 'true';
-        exchangeBox.style.display = 'none';
-      }
-    }
 
     // 1. 필수 가격 정보 조회 (CORS 우회 로컬 프록시 / Vercel 연동)
     let priceInfo;

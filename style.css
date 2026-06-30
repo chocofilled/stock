@@ -2349,6 +2349,21 @@ body {
   color: #0000c0 !important;
 }
 
+/* 즐겨찾기 항목 액티브 및 호버 시: 남색 배경에 흰색 글씨로 완벽 반전 하이라이트 */
+.favorite-item.active, .favorite-item:hover {
+  background: #000080 !important;
+  border-color: #000080 !important;
+}
+.favorite-item.active *, .favorite-item:hover * {
+  color: #ffffff !important;
+}
+.favorite-item.active .favorite-item-ratio.up, .favorite-item:hover .favorite-item-ratio.up {
+  color: #ff88a8 !important; /* 남색 배경 위에서 가시성이 좋은 연분홍 */
+}
+.favorite-item.active .favorite-item-ratio.down, .favorite-item:hover .favorite-item-ratio.down {
+  color: #88ccff !important; /* 남색 배경 위에서 가시성이 좋은 연하늘 */
+}
+
 /* 검색 자동완성 드롭다운 텍스트 및 코드 컬러 확보 */
 .dropdown-item {
   color: #000000 !important;
@@ -2391,10 +2406,16 @@ body {
   border: 1px solid #084080 !important;
 }
 
-/* 뉴스 요약 및 목록 가시성 개선 */
+/* 뉴스 요약 및 목록 가시성 개선 (남색 배경 강제 원천 제거, 완전한 흰색 리스트) */
 .news-list-item {
+  background: #ffffff !important;
   color: #000000 !important;
-  border-bottom: 1px solid #e0e0e0 !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.news-list-item:hover {
+  background: #f0f0f0 !important;
 }
 .news-item-title {
   color: #000000 !important;
@@ -2404,6 +2425,16 @@ body {
 }
 .news-item-office {
   color: #000080 !important; /* 남색 */
+}
+
+/* 뉴스 리스트 호버 시 오리지널 다크테마 반전 룰에 의해 글씨가 흰색으로 튀는 현상 방지 */
+.news-list-item:hover .news-item-title,
+.news-list-item:hover .news-item-time,
+.news-list-item:hover .news-item-office {
+  color: #000000 !important;
+}
+.news-list-item:hover .news-item-office {
+  color: #000080 !important;
 }
 
 #news-summary-box {

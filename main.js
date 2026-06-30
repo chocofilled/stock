@@ -1034,7 +1034,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function fetchYahooPrice(stock) {
-    const res = await fetch(`/api/yahoo/v8/finance/chart/${encodeURIComponent(stock.code)}?interval=1d&range=2d`);
+    const res = await fetch(`/api/yahoo/v8/finance/chart/${encodeURIComponent(stock.code)}?interval=5m&range=1d`);
     if (!res.ok) throw new Error('Yahoo Finance fetch failed');
 
     const data = await res.json();

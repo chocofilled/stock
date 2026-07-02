@@ -1958,3 +1958,160 @@ button:active,
   padding-top: 10px !important;
 }
 
+/* 테마 변경 버튼 스타일 */
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid hsla(230, 25%, 30%, 0.45);
+  background: hsla(230, 25%, 8%, 0.55);
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-right: auto; /* 좌측 상단 배치를 위해 오른쪽 여백 최대로 밀기 */
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+  border-color: hsla(230, 25%, 45%, 0.65);
+  color: var(--text-primary);
+}
+
+.pixel-theme-svg {
+  width: 14px;
+  height: 14px;
+  shape-rendering: crispEdges;
+}
+
+/* ==========================================
+   💻 IT 개발자 업무 화면 테마 (Developer Theme)
+   ========================================== */
+body.theme-developer {
+  /* 폰트: 모던한 IDE 폰트 위주 */
+  --font-sans: 'Outfit', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Fira Code', 'Consolas', monospace;
+  --bg-dark: #1e1e1e;       /* VS Code Activity Bar/Panel 배경 */
+  --card-bg: #1e1e1e;       /* 전체 배경 통합 */
+  --card-border: #333333;   /* VS Code 보더 */
+  --text-primary: #cccccc;  /* VS Code 텍스트 */
+  --text-secondary: #569cd6;/* VS Code 키워드 파랑 */
+  --text-muted: #6a9955;    /* VS Code 주석 초록 */
+  --accent-purple: #c586c0; /* VS Code 제어문 보라 */
+  --accent-cyan: #4ec9b0;   /* VS Code 타입/클래스 초록 */
+}
+
+/* 격자 배경 무늬 제거 및 단색 어두운 배경 적용 */
+body.theme-developer {
+  background-image: none !important;
+  background-color: var(--bg-dark) !important;
+}
+
+/* 카드 디자인: 레트로 보더 및 두꺼운 그림자 제거, 모던한 에디터 윈도우 스타일 */
+body.theme-developer main.card {
+  border-radius: 6px !important;
+  border: 1px solid #3c3c3c !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  background: #1e1e1e !important;
+}
+
+/* 카드 테두리 그라디언트 제거 */
+body.theme-developer .card-border-gradient {
+  display: none !important;
+}
+
+/* 모든 8-bit 아케이드 폰트 강제 재정의 */
+body.theme-developer,
+body.theme-developer input,
+body.theme-developer button,
+body.theme-developer select,
+body.theme-developer textarea,
+body.theme-developer .market-badge,
+body.theme-developer .favorites-panel-count,
+body.theme-developer .favorites-order-toggle,
+body.theme-developer .exchange-rate,
+body.theme-developer .exchange-change,
+body.theme-developer .stock-price,
+body.theme-developer .stock-price-change,
+body.theme-developer .favorite-item-price,
+body.theme-developer .favorite-item-ratio,
+body.theme-developer .news-summary-box,
+body.theme-developer .news-title {
+  font-family: var(--font-sans) !important;
+  letter-spacing: 0 !important;
+  border-radius: 4px !important;
+}
+
+/* 그림자 & 테두리 레트로 규칙 덮어쓰기 */
+body.theme-developer button,
+body.theme-developer input,
+body.theme-developer .exchange-box,
+body.theme-developer .search-container,
+body.theme-developer .favorites-panel,
+body.theme-developer .stock-info-panel,
+body.theme-developer .news-summary-box,
+body.theme-developer .news-item {
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  border: 1px solid #3c3c3c !important;
+  background-color: #252526 !important; /* VS Code Editor Area */
+}
+
+/* 호버 및 포커스 스타일 */
+body.theme-developer button:hover,
+body.theme-developer button:focus,
+body.theme-developer input:focus {
+  border-color: #007acc !important; /* VS Code Focus Blue */
+  box-shadow: 0 0 0 1px #007acc !important;
+}
+
+/* 상승/하락 VS Code 테마 색상으로 덮어쓰기 */
+body.theme-developer .stock-price-change.up,
+body.theme-developer .favorite-item-ratio.up,
+body.theme-developer .exchange-change.up {
+  color: #f44747 !important; /* VS Code Error Red */
+  background: transparent !important;
+}
+
+body.theme-developer .stock-price-change.down,
+body.theme-developer .favorite-item-ratio.down,
+body.theme-developer .exchange-change.down {
+  color: #3794ff !important; /* VS Code Info Blue */
+  background: transparent !important;
+}
+
+body.theme-developer .stock-price-change.flat,
+body.theme-developer .favorite-item-ratio.flat,
+body.theme-developer .exchange-change.flat {
+  color: #858585 !important;
+  background: transparent !important;
+}
+
+/* 즐겨찾기 아이템 */
+body.theme-developer .favorite-item {
+  border-bottom: 1px solid #2d2d2d !important;
+  border-radius: 0 !important;
+}
+body.theme-developer .favorite-item.active {
+  background-color: #37373d !important; /* VS Code Selected Item */
+  border-left: 3px solid #007acc !important;
+}
+
+/* 자동완성 드롭다운 */
+body.theme-developer .autocomplete-dropdown {
+  background: #2d2d2d !important;
+  border-color: #3c3c3c !important;
+}
+body.theme-developer .dropdown-item:hover,
+body.theme-developer .dropdown-item.active {
+  background: #37373d !important;
+  color: #ffffff !important;
+}
+
+/* 배경 글로우(네온) 제거 */
+body.theme-developer .background-glows {
+  display: none !important;
+}
+

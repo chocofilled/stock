@@ -153,6 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let favoriteAlertMap = new Map();
   let openedFromFavorites = false;
   let favoritesOrderEditing = false;
+  let currentChartPoints = null;
+  let currentIsTodayUp = undefined;
 
   const RETRO_THEMES = [
     { id: 'semicon', name: '반도체', stocks: ['005930', '000660', '000990', '042700', '403870'], icon: `<svg class="theme-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="3" y="3" width="10" height="10" fill="#3a3d52"/><rect x="5" y="5" width="6" height="6" fill="#1b1e2c"/><rect x="7" y="7" width="2" height="2" fill="#00ffcc"/><rect x="5" y="1" width="2" height="2" fill="#ffe600"/><rect x="9" y="1" width="2" height="2" fill="#ffe600"/><rect x="5" y="13" width="2" height="2" fill="#ffe600"/><rect x="9" y="13" width="2" height="2" fill="#ffe600"/><rect x="1" y="5" width="2" height="2" fill="#ffe600"/><rect x="1" y="9" width="2" height="2" fill="#ffe600"/><rect x="13" y="5" width="2" height="2" fill="#ffe600"/><rect x="13" y="9" width="2" height="2" fill="#ffe600"/></svg>` },
@@ -1147,11 +1149,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 파라미터가 명시적으로 불리언으로 넘어오면 그것을 쓰고, 없으면 15영업일 비교 폴백
     const isUp = typeof isTodayUp === 'boolean' ? isTodayUp : (prices[prices.length - 1] >= prices[0]);
     
-    // 8비트 레트로 색상 연동 (상승: 빨간색, 하락: 파란색 — 국내 주식 관례)
-    const strokeColor = isUp ? '#ff0055' : '#00aaff';
+    const isDeveloper = document.body.classList.contains('theme-developer');
+    // 8비트 레트로 색상 연동 (상승: 빨간색, 하락: 파란색 — 국내 주식 관례) / 개발자 테마에서는 VS Code 스타일 컬러 적용
+    const strokeColor = isUp 
+      ? (isDeveloper ? '#f44747' : '#ff0055') 
+      : (isDeveloper ? '#3794ff' : '#00aaff');
 
     // 1. 차트 하단 영역 투박한 픽셀 블록 느낌의 채우기
-    ctx.fillStyle = isUp ? 'rgba(255, 0, 85, 0.08)' : 'rgba(0, 170, 255, 0.08)';
+    ctx.fillStyle = isUp 
+      ? (isDeveloper ? 'rgba(244, 71, 71, 0.08)' : 'rgba(255, 0, 85, 0.08)') 
+      : (isDeveloper ? 'rgba(55, 148, 255, 0.08)' : 'rgba(0, 170, 255, 0.08)');
     ctx.beginPath();
     ctx.moveTo(Math.round(getX(0)), height);
     for (let i = 0; i < points.length; i++) {
@@ -1335,7 +1342,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chartPeriodVal.textContent = `${startMD} ~ ${endMD}`;
 
         chartContainer.classList.remove('hidden');
-        drawSparkline(chartPoints, priceInfo ? priceInfo.ratio >= 0 : undefined);
+        currentChartPoints = chartPoints;
+        currentIsTodayUp = priceInfo ? priceInfo.ratio >= 0 : undefined;
+        drawSparkline(chartPoints, currentIsTodayUp);
       }
     } catch (chartError) {
       console.warn('Mini chart load failed (ignoring error to preserve price details):', chartError);
@@ -1941,5 +1950,25 @@ document.addEventListener('DOMContentLoaded', () => {
     analyticsScript.defer = true;
     analyticsScript.setAttribute('data-sdknode', 'true');
     document.body.appendChild(analyticsScript);
+  }
+
+  // 테마 관리 (아케이드 vs 개발자 업무 화면)
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    const currentTheme = localStorage.getItem('app_theme_v1') || 'arcade';
+    if (currentTheme === 'developer') {
+      document.body.classList.add('theme-developer');
+    }
+
+    themeToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isDeveloper = document.body.classList.toggle('theme-developer');
+      localStorage.setItem('app_theme_v1', isDeveloper ? 'developer' : 'arcade');
+      
+      // 차트가 있으면 다시 그려서 색상 반영
+      if (currentChartPoints) {
+        drawSparkline(currentChartPoints, currentIsTodayUp);
+      }
+    });
   }
 });

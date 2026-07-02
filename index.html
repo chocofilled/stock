@@ -33,7 +33,7 @@
             </svg>
           </button>
           <button id="favorites-refresh" class="favorites-refresh" type="button" aria-label="즐겨찾기 새로고침">
-            <svg class="favorites-refresh-svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+            <svg class="favorites-refresh-svg pixel-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
               <rect x="4" y="2" width="8" height="2"/>
               <rect x="11" y="4" width="2" height="2"/>
               <rect x="12" y="5" width="2" height="5"/>
@@ -45,6 +45,12 @@
               <rect x="0" y="9" width="6" height="2"/>
               <rect x="2" y="7" width="2" height="2"/>
             </svg>
+            <svg class="favorites-refresh-svg modern-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1.5 8a6.5 6.5 0 0 1 11-4.8L14.5 5.5"/>
+              <path d="M14.5 2v3.5h-3.5"/>
+              <path d="M14.5 8a6.5 6.5 0 0 1-11 4.8L1.5 10.5"/>
+              <path d="M1.5 14v-3.5h3.5"/>
+            </svg>
           </button>
           <button id="favorites-panel-toggle" class="favorites-panel-toggle" type="button" aria-label="즐겨찾기 목록 열기" aria-expanded="false">
             <span class="favorites-panel-toggle-dots">
@@ -52,7 +58,7 @@
               <span class="favorites-panel-toggle-dot favorites-panel-toggle-dot--down" id="favorites-panel-alert-dot-down"></span>
             </span>
             <span class="favorites-panel-toggle-star">
-              <svg class="pixel-star-svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+              <svg class="pixel-star-svg pixel-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
                 <rect x="7" y="1" width="2" height="1"/>
                 <rect x="7" y="2" width="2" height="1"/>
                 <rect x="6" y="3" width="4" height="1"/>
@@ -71,6 +77,9 @@
                 <rect x="2" y="14" width="1" height="1"/>
                 <rect x="13" y="14" width="1" height="1"/>
               </svg>
+              <svg class="pixel-star-svg modern-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="8 1.5 10.1 5.8 14.8 6.5 11.4 9.8 12.2 14.5 8 12.3 3.8 14.5 4.6 9.8 1.2 6.5 5.9 5.8 8 1.5"/>
+              </svg>
             </span>
           </button>
         </div>
@@ -79,7 +88,35 @@
         <section id="favorites-panel" class="favorites-panel hidden" aria-label="즐겨찾기 목록">
           <div class="favorites-panel-header">
             <span class="favorites-panel-count" id="favorites-panel-count">0</span>
-            <button id="favorites-order-toggle" class="favorites-order-toggle" type="button">순서 변경</button>
+            <button id="favorites-order-toggle" class="favorites-order-toggle" type="button" aria-label="순서 변경">
+              <!-- 순서 변경 아이콘 ⇅ -->
+              <svg class="pixel-order-svg pixel-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                <rect x="3" y="1" width="2" height="11"/>
+                <rect x="2" y="3" width="4" height="1"/>
+                <rect x="1" y="4" width="6" height="1"/>
+                <rect x="11" y="4" width="2" height="11"/>
+                <rect x="10" y="12" width="4" height="1"/>
+                <rect x="9" y="11" width="6" height="1"/>
+              </svg>
+              <svg class="pixel-order-svg modern-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 2.5v11"/>
+                <path d="M2 5L4.5 2.5 7 5"/>
+                <path d="M11.5 13.5v-11"/>
+                <path d="M9 11l2.5 2.5 2.5-2.5"/>
+              </svg>
+              <!-- 완료 아이콘 ✓ -->
+              <svg class="pixel-check-svg pixel-icon hidden" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                <rect x="3" y="8" width="2" height="2"/>
+                <rect x="5" y="10" width="2" height="2"/>
+                <rect x="7" y="8" width="2" height="2"/>
+                <rect x="9" y="6" width="2" height="2"/>
+                <rect x="11" y="4" width="2" height="2"/>
+                <rect x="13" y="2" width="2" height="2"/>
+              </svg>
+              <svg class="pixel-check-svg modern-icon hidden" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="13 4 5.5 11.5 2.5 8.5"/>
+              </svg>
+            </button>
           </div>
           <div id="favorites-list" class="favorites-list"></div>
         </section>
@@ -146,7 +183,7 @@
               <button id="favorite-toggle" class="favorite-toggle" type="button" aria-label="즐겨찾기 추가">
                 <span class="favorite-toggle-dot" id="favorite-alert-dot"></span>
                 <span class="favorite-toggle-star" id="favorite-toggle-star">
-                  <svg class="pixel-star-svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                  <svg class="pixel-star-svg pixel-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
                     <rect x="7" y="1" width="2" height="1"/>
                     <rect x="7" y="2" width="2" height="1"/>
                     <rect x="6" y="3" width="4" height="1"/>
@@ -164,6 +201,9 @@
                     <rect x="12" y="13" width="3" height="1"/>
                     <rect x="2" y="14" width="1" height="1"/>
                     <rect x="13" y="14" width="1" height="1"/>
+                  </svg>
+                  <svg class="pixel-star-svg modern-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="8 1.5 10.1 5.8 14.8 6.5 11.4 9.8 12.2 14.5 8 12.3 3.8 14.5 4.6 9.8 1.2 6.5 5.9 5.8 8 1.5"/>
                   </svg>
                 </span>
               </button>

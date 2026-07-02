@@ -521,7 +521,8 @@ document.addEventListener('DOMContentLoaded', () => {
       favoritesOrderEditing = false;
       if (favoritesOrderToggleBtn) {
         favoritesOrderToggleBtn.classList.remove('active');
-        favoritesOrderToggleBtn.textContent = '순서 변경';
+        favoritesOrderToggleBtn.querySelectorAll('.pixel-order-svg').forEach(el => el.classList.remove('hidden'));
+        favoritesOrderToggleBtn.querySelectorAll('.pixel-check-svg').forEach(el => el.classList.add('hidden'));
       }
       // 즐겨찾기에서 열었던 상세정보도 함께 닫기
       if (openedFromFavorites) {
@@ -826,6 +827,26 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshFavoriteAlerts();
   }
 
+  function isKoreanExchangeOvertime() {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+    const kst = new Date(utc + (9 * 60 * 60 * 1000));
+    
+    const day = kst.getDay();
+    if (day === 0 || day === 6) return false;
+    
+    const hours = kst.getHours();
+    const minutes = kst.getMinutes();
+    const timeVal = hours * 100 + minutes;
+    
+    // 장전 시간외: 08:30 ~ 08:40
+    const isMorningOvertime = (timeVal >= 830 && timeVal < 840);
+    // 장후 시간외 & 단일가: 15:40 ~ 18:00
+    const isAfternoonOvertime = (timeVal >= 1540 && timeVal < 1800);
+    
+    return isMorningOvertime || isAfternoonOvertime;
+  }
+
   async function fetchKoreanRealtimePrice(stock) {
     const fetchFn = async () => {
       const response = await fetch(`/api/naver-realtime/api/realtime/domestic/stock/${stock.code}`);
@@ -835,7 +856,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = json.datas?.[0];
       if (!data) throw new Error('No realtime data');
 
-      const isOvertime = data.overMarketPriceInfo && data.overMarketPriceInfo.overMarketStatus === 'OPEN';
+      const isRealOvertimeTime = isKoreanExchangeOvertime();
+      const isOvertime = isRealOvertimeTime && data.overMarketPriceInfo && data.overMarketPriceInfo.overMarketStatus === 'OPEN';
       
       let price, change, ratio;
       
@@ -1912,7 +1934,9 @@ document.addEventListener('DOMContentLoaded', () => {
     favoritesOrderToggleBtn.addEventListener('click', () => {
       favoritesOrderEditing = !favoritesOrderEditing;
       favoritesOrderToggleBtn.classList.toggle('active', favoritesOrderEditing);
-      favoritesOrderToggleBtn.textContent = favoritesOrderEditing ? '완료' : '순서 변경';
+      favoritesOrderToggleBtn.querySelectorAll('.pixel-order-svg').forEach(el => el.classList.toggle('hidden', favoritesOrderEditing));
+      favoritesOrderToggleBtn.querySelectorAll('.pixel-check-svg').forEach(el => el.classList.toggle('hidden', !favoritesOrderEditing));
+      
       renderFavoritePanel();
     });
   }

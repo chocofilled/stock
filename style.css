@@ -132,8 +132,9 @@ body {
 /* PC 호버 상태에서만 카드 상단 리프트업 적용 (터치 덜컹거림 방지) */
 @media (hover: hover) {
   .card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(185, 95, 248, 0.1);
+    /* 화면 전체 흔들림 오류 수정을 위해 transform 리프트업 제거 */
+    transform: none;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -261,6 +262,7 @@ body {
   gap: 8px;
   align-items: center;
   justify-content: center !important;
+  height: 165px !important; /* 레이아웃 흔들림 오류 방지를 위해 높이 고정 */
   min-height: 165px !important;
   background: hsla(230, 25%, 5%, 0.3);
   border: 1px solid hsla(230, 25%, 20%, 0.5);
@@ -748,6 +750,7 @@ body {
   padding: 4px 10px;
   border-radius: 6px;
   letter-spacing: 0.5px;
+  font-family: 'Outfit', 'Inter', 'Segoe UI', -apple-system, sans-serif !important; /* 깔끔하고 선명한 모던 폰트 강제 */
 }
 
 .market-badge.hidden-label {
@@ -909,17 +912,20 @@ body {
 }
 
 .favorites-order-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   border-radius: 0 !important;
   border: 2px solid #ffffff !important;
   background: #111424 !important;
   color: #ffffff !important;
-  font-family: 'DungGeunMo', sans-serif !important;
-  font-size: 10px !important;
-  padding: 3px 8px !important;
   cursor: pointer;
   box-shadow: 3px 3px 0px #000000 !important;
   user-select: none !important;
   transition: none !important;
+  padding: 0 !important;
 }
 
 .favorites-order-toggle:hover {
@@ -931,6 +937,21 @@ body {
   border-color: #00ffcc !important;
   box-shadow: 3px 3px 0px #00ffcc !important;
   color: #00ffcc !important;
+}
+
+.pixel-order-svg,
+.pixel-check-svg {
+  width: 12px;
+  height: 12px;
+  shape-rendering: crispEdges;
+}
+
+.pixel-check-svg {
+  color: #00ffcc;
+}
+
+.hidden {
+  display: none !important;
 }
 
 .favorites-list {
@@ -2113,5 +2134,98 @@ body.theme-developer .dropdown-item.active {
 /* 배경 글로우(네온) 제거 */
 body.theme-developer .background-glows {
   display: none !important;
+}
+
+/* 기본(아케이드) 테마: 모던 아이콘 숨김 */
+.modern-icon {
+  display: none;
+}
+
+/* 개발자 테마에서의 업종(테마) 아이템 스타일 (배경/테두리 환율 표기와 통일) */
+body.theme-developer .theme-item,
+body.theme-developer .theme-item.active,
+body.theme-developer .theme-item.gray {
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  border: 1px solid #3c3c3c !important;
+  border-width: 1px !important;
+  background: #252526 !important;
+}
+
+body.theme-developer .theme-item.active {
+  border-color: #2a695d !important; /* 민트색을 톤다운한 차분한 청록색 */
+}
+
+body.theme-developer .theme-item.gray {
+  border-color: #3c3c3c !important; /* 환율 표기와 동일한 테두리색 강제 */
+}
+
+body.theme-developer .theme-item.gray:hover {
+  border-color: #3b8f80 !important; /* 호버 시에만 톤다운 민트색으로 부드러운 하이라이트 */
+}
+
+/* 업종 아이콘 내부 하드코딩된 남색 배경 채우기를 환율배경(#252526)으로 변경 */
+body.theme-developer .theme-item svg rect[fill="#1b1e2c"],
+body.theme-developer .theme-item svg rect[fill="#111424"],
+body.theme-developer .theme-item svg rect[fill="#151824"] {
+  fill: #252526 !important;
+}
+
+/* 개발자 테마 전체 SVG 아이콘 톤다운 */
+body.theme-developer svg:not(.pixel-theme-svg) {
+  filter: saturate(30%) brightness(85%) opacity(75%) !important;
+}
+
+body.theme-developer button:hover svg:not(.pixel-theme-svg),
+body.theme-developer .theme-item:hover svg:not(.pixel-theme-svg),
+body.theme-developer .theme-item.active svg:not(.pixel-theme-svg),
+body.theme-developer .favorite-item:hover svg:not(.pixel-theme-svg) {
+  filter: saturate(70%) brightness(100%) opacity(95%) !important;
+}
+
+/* 개발자 테마: 레트로 아이콘 숨김 및 모던 아이콘 활성화 */
+body.theme-developer .pixel-icon {
+  display: none !important;
+}
+
+body.theme-developer .modern-icon {
+  display: inline-block;
+}
+
+/* hidden인 아이콘들은 절대적으로 감춤 */
+.hidden {
+  display: none !important;
+}
+
+/* 개발자 테마 호버 시 덜컹거리는 흔들림 방지를 위해 리프트업 무력화 */
+body.theme-developer button:hover,
+body.theme-developer .theme-toggle:hover,
+body.theme-developer .favorites-refresh:hover,
+body.theme-developer .favorites-panel-toggle:hover,
+body.theme-developer .favorite-toggle:hover,
+body.theme-developer .stock-alert-toggle:hover,
+body.theme-developer .alert-save-btn:hover {
+  transform: none !important;
+}
+
+/* 개발자 테마 업종 버튼들이 있는 영역 (theme-board) 배경 및 테두리를 환율 표기와 통일 */
+body.theme-developer .theme-board {
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  border: 1px solid #3c3c3c !important;
+  border-width: 1px !important;
+  background: #252526 !important;
+}
+
+/* 개발자 테마 미니 그래프(차트) 및 뉴스 컨테이너 스타일 환율/업종 영역과 통일 */
+body.theme-developer .stock-chart-container,
+body.theme-developer .stock-news-container,
+body.theme-developer .news-summary-box,
+body.theme-developer .news-item {
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  border: 1px solid #3c3c3c !important;
+  border-width: 1px !important;
+  background: #252526 !important;
 }
 

@@ -308,7 +308,22 @@ body {
 }
 
 .exchange-change {
-  display: none;
+  display: inline-block;
+  font-size: 10px;
+  margin-left: 4px;
+  font-family: var(--font-sans);
+}
+
+.exchange-change.up {
+  color: #ff0055 !important;
+}
+
+.exchange-change.down {
+  color: #00aaff !important;
+}
+
+.exchange-change.flat {
+  color: #c5c6c7 !important;
 }
 
 .exchange-separator {

@@ -424,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       console.error('Failed to load stock list cache.');
       searchInput.placeholder = '';
+      searchInput.disabled = false;
     }
 
     searchLoader.classList.remove('active');
@@ -781,10 +782,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // 즐겨찾기 패널은 유지하고 (setFavoritePanelOpen(false) 호출 안 함)
         // 테마보드는 이미 hidden 상태이므로 유지, 상세정보는 패널 아래쪽에 표시됨
         selectStock(stock);
-        renderFavoritePanel(); // 선택된 행에 active 클래스 갱신
       });
 
       favoriteList.appendChild(row);
+    });
+  }
+
+  function updateFavoriteActive() {
+    if (!favoriteList) return;
+    const items = favoriteList.querySelectorAll('.favorite-item');
+    items.forEach((itemEl) => {
+      const origIdx = parseInt(itemEl.dataset.originalIndex, 10);
+      const stock = resolveFavoriteStock(favoriteStocks[origIdx]);
+      if (currentStock && getStockKey(currentStock) === getStockKey(stock)) {
+        itemEl.classList.add('active');
+      } else {
+        itemEl.classList.remove('active');
+      }
     });
   }
 
@@ -1208,7 +1222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     codeEl.textContent = displayCode(stock);
     nameEl.textContent = stock.name;
     syncFavoriteButton();
-    renderFavoritePanel();
+    updateFavoriteActive();
 
     if (alertPanel) alertPanel.classList.add('hidden');
     if (chartContainer) chartContainer.classList.add('hidden');
@@ -1478,11 +1492,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const stockNameClean = stock.name.toLowerCase().replace(/\s+/g, '');
     const stockCode = stock.code.toLowerCase();
     
-    const keyTerms = [
-      '실적', '주가', '상승', '하락', '최고', '최저', '매수', '전망', '분석', 
-      'HBM', 'AI', '수혜', '공급', '탈퇴', '파업', '반등', '목표가', '상향',
-      '하향', '매도', '영업이익', '매출', '흑자', '적자', '계약', '인수', '합병'
-    ];
+    let keyTerms = [];
+    const country = stock.country || 'KR';
+    if (country === 'US') {
+      keyTerms = [
+        'earning', 'profit', 'stock', 'share', 'rise', 'fall', 'growth', 'down', 'up', 'buy', 'sell', 
+        'forecast', 'outlook', 'revenue', 'quarter', 'ai', 'hbm', 'deal', 'merger', 'acquisition', 'target'
+      ];
+    } else if (country === 'JP') {
+      keyTerms = [
+        '決算', '株価', '上昇', '下落', '買収', '売却', '見通し', '赤字', '黒字', '最高', '最低',
+        '業績', '利益', '上昇', '反발', '目標株価'
+      ];
+    } else {
+      keyTerms = [
+        '실적', '주가', '상승', '하락', '최고', '최저', '매수', '전망', '분석', 
+        'HBM', 'AI', '수혜', '공급', '탈퇴', '파업', '반등', '목표가', '상향',
+        '하향', '매도', '영업이익', '매출', '흑자', '적자', '계약', '인수', '합병'
+      ];
+    }
 
     sentences.forEach(s => {
       const lowerText = s.text.toLowerCase();
@@ -1499,9 +1527,15 @@ document.addEventListener('DOMContentLoaded', () => {
         score += 8;
       }
 
-      if (s.text.length < 15) score -= 10;
-      if (s.text.length > 100) score -= 5;
-      if (s.text.length > 150) score -= 15;
+      if (country === 'US') {
+        if (s.text.length < 30) score -= 10;
+        if (s.text.length > 200) score -= 5;
+        if (s.text.length > 300) score -= 15;
+      } else {
+        if (s.text.length < 15) score -= 10;
+        if (s.text.length > 100) score -= 5;
+        if (s.text.length > 150) score -= 15;
+      }
 
       s.score = score;
     });
@@ -1616,32 +1650,7 @@ document.addEventListener('DOMContentLoaded', () => {
     newsContainer.classList.remove('hidden');
   }
 
-  function formatExchangeUpdateTime(value) {
-    if (value === null || value === undefined || value === '') return '';
 
-    let date;
-    if (typeof value === 'number') {
-      date = new Date(value > 1e12 ? value : value * 1000);
-    } else {
-      date = new Date(value);
-      if (Number.isNaN(date.getTime()) && /^\d+$/.test(String(value))) {
-        const numericValue = Number(value);
-        date = new Date(numericValue > 1e12 ? numericValue : numericValue * 1000);
-      }
-    }
-
-    if (Number.isNaN(date.getTime())) return '';
-
-    return new Intl.DateTimeFormat('ko-KR', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).format(date);
-  }
 
 
   async function loadExchangeRates() {
@@ -1652,9 +1661,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       const usdRate = data.rates?.KRW;
-      const jpyRate = data.rates?.JPY ? (1 / data.rates.JPY) * 100 * usdRate / usdRate * data.rates.KRW / data.rates.JPY * 100 : null;
       // JPY: 1달러당 엔 → 100엔당 원 = (KRW/USD) / (JPY/USD) * 100
       const jpy100Rate = usdRate / data.rates.JPY * 100;
+
+      // 로컬 스토리지에서 이전 환율 정보 읽기 및 변동률 계산
+      let prevRates = null;
+      try {
+        const cached = localStorage.getItem('last_exchange_rates_v1');
+        if (cached) prevRates = JSON.parse(cached);
+      } catch (e) {}
 
       // USD 요소 업데이트
       const usdRateEl = document.getElementById('usd-rate');
@@ -1662,7 +1677,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (usdRateEl && usdRate) {
         usdRateEl.textContent = `${usdRate.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KRW`;
       }
-      if (usdChangeEl) usdChangeEl.textContent = '';
+      if (usdChangeEl && usdRate) {
+        if (prevRates && prevRates.usd) {
+          const diff = usdRate - prevRates.usd;
+          const pct = (diff / prevRates.usd) * 100;
+          const sign = diff > 0 ? '+' : '';
+          usdChangeEl.textContent = `${sign}${diff.toFixed(2)} (${sign}${pct.toFixed(2)}%)`;
+          usdChangeEl.className = 'exchange-change ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat');
+        } else {
+          usdChangeEl.textContent = '0.00 (0.00%)';
+          usdChangeEl.className = 'exchange-change flat';
+        }
+      }
 
       // JPY 요소 업데이트 (100엔당 원화)
       const jpyRateEl = document.getElementById('jpy-rate');
@@ -1670,7 +1696,27 @@ document.addEventListener('DOMContentLoaded', () => {
       if (jpyRateEl && jpy100Rate) {
         jpyRateEl.textContent = `${jpy100Rate.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KRW`;
       }
-      if (jpyChangeEl) jpyChangeEl.textContent = '';
+      if (jpyChangeEl && jpy100Rate) {
+        if (prevRates && prevRates.jpy) {
+          const diff = jpy100Rate - prevRates.jpy;
+          const pct = (diff / prevRates.jpy) * 100;
+          const sign = diff > 0 ? '+' : '';
+          jpyChangeEl.textContent = `${sign}${diff.toFixed(2)} (${sign}${pct.toFixed(2)}%)`;
+          jpyChangeEl.className = 'exchange-change ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat');
+        } else {
+          jpyChangeEl.textContent = '0.00 (0.00%)';
+          jpyChangeEl.className = 'exchange-change flat';
+        }
+      }
+
+      // 현재 환율 정보 저장
+      try {
+        localStorage.setItem('last_exchange_rates_v1', JSON.stringify({
+          usd: usdRate,
+          jpy: jpy100Rate,
+          timestamp: Date.now()
+        }));
+      } catch (e) {}
 
       // 시각: API의 timestamp 필드 (Unix 초)
       const updatedEl = document.getElementById('exchange-updated');

@@ -9,10 +9,6 @@
       "destination": "https://m.stock.naver.com/api/news/:path*"
     },
     {
-      "source": "/api/exchange/:path*",
-      "destination": "https://open.er-api.com/:path*"
-    },
-    {
       "source": "/api/exchangefun/:path*",
       "destination": "https://api.exchangerate.fun/:path*"
     },
@@ -23,10 +19,6 @@
     {
       "source": "/api/naver-realtime/:path*",
       "destination": "https://polling.finance.naver.com/:path*"
-    },
-    {
-      "source": "/api/naver-sectors/:path*",
-      "destination": "https://m.stock.naver.com/api/:path*"
     }
   ]
 }

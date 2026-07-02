@@ -2088,19 +2088,47 @@ body.theme-developer input:focus {
   box-shadow: 0 0 0 1px #007acc !important;
 }
 
-/* 상승/하락 VS Code 테마 색상으로 덮어쓰기 */
+/* 상승/하락 VS Code 테마 색상으로 덮어쓰기 (톤다운) */
 body.theme-developer .stock-price-change.up,
 body.theme-developer .favorite-item-ratio.up,
 body.theme-developer .exchange-change.up {
-  color: #f44747 !important; /* VS Code Error Red */
+  color: #a83b3b !important;
   background: transparent !important;
 }
 
 body.theme-developer .stock-price-change.down,
 body.theme-developer .favorite-item-ratio.down,
 body.theme-developer .exchange-change.down {
-  color: #3794ff !important; /* VS Code Info Blue */
+  color: #2d5a8c !important;
   background: transparent !important;
+}
+
+/* 기본 아케이드 테마 툴팁 등락 색상 */
+.theme-tooltip-ratio.up,
+.theme-tooltip-price.up {
+  color: #ff0055 !important;
+}
+.theme-tooltip-ratio.down,
+.theme-tooltip-price.down {
+  color: #00aaff !important;
+}
+.theme-tooltip-ratio.flat,
+.theme-tooltip-price.flat {
+  color: #ffffff !important;
+}
+
+/* 개발자 테마 툴팁 등락 색상 (톤다운) */
+body.theme-developer .theme-tooltip-ratio.up,
+body.theme-developer .theme-tooltip-price.up {
+  color: #a83b3b !important;
+}
+body.theme-developer .theme-tooltip-ratio.down,
+body.theme-developer .theme-tooltip-price.down {
+  color: #2d5a8c !important;
+}
+body.theme-developer .theme-tooltip-ratio.flat,
+body.theme-developer .theme-tooltip-price.flat {
+  color: #858585 !important;
 }
 
 body.theme-developer .stock-price-change.flat,

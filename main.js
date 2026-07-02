@@ -82,9 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!data) return;
 
     const { name, avgChange, details } = data;
-    const avgColor = avgChange > 0 ? '#ff0055' : (avgChange < 0 ? '#00aaff' : '#ffffff');
+    const avgClass = avgChange > 0 ? 'up' : (avgChange < 0 ? 'down' : 'flat');
     let html = `<div style="text-align: center; font-weight: bold; border-bottom: 1px dashed #777788; margin-bottom: 8px; padding-bottom: 6px;">`;
-    html += `${name} <span style="color: ${avgColor}">${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%</span>`;
+    html += `${name} <span class="theme-tooltip-ratio ${avgClass}">${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%</span>`;
     html += `</div>`;
 
     if (details && details.length > 0) {
@@ -92,10 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
       html += details.map(d => {
         const formattedPrice = d.price !== undefined ? d.price.toLocaleString('ko-KR') + '원' : '로딩 실패';
         const sign = d.ratio >= 0 ? '+' : '';
-        const color = d.ratio > 0 ? '#ff0055' : (d.ratio < 0 ? '#00aaff' : '#ffffff');
+        const detailClass = d.ratio > 0 ? 'up' : (d.ratio < 0 ? 'down' : 'flat');
         return `<span style="color: #cccccc; text-align: left;">${d.name}</span>` +
-               `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 8px;">${formattedPrice}</span>` +
-               `<span style="color: ${color}; text-align: right; font-family: 'Press Start 2P', monospace; font-size: 8px;">(${sign}${d.ratio.toFixed(2)}%)</span>`;
+               `<span class="theme-tooltip-price ${detailClass}" style="text-align: right; font-family: 'Press Start 2P', monospace; font-size: 8px;">${formattedPrice}</span>` +
+               `<span class="theme-tooltip-ratio ${detailClass}" style="text-align: right; font-family: 'Press Start 2P', monospace; font-size: 8px;">(${sign}${d.ratio.toFixed(2)}%)</span>`;
       }).join('');
       html += `</div>`;
     } else {
